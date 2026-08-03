@@ -22,6 +22,10 @@
 ;(() => {
   'use strict'
 
+  if (location.hostname !== 'www.douyin.com') {
+    return
+  }
+
   const isJingxuan = location.pathname === '/jingxuan'
   const isRecommendHome =
     location.pathname === '/' && new URLSearchParams(location.search).has('recommend')

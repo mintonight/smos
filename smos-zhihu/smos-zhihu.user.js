@@ -19,7 +19,7 @@
 ;(() => {
   'use strict'
 
-  if (location.pathname !== '/' && location.pathname !== '/explore') {
+  if (location.hostname !== 'www.zhihu.com' || (location.pathname !== '/' && location.pathname !== '/explore')) {
     return
   }
 
