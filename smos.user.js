@@ -1351,10 +1351,17 @@ main[role="main"] {
     input.focus({ preventScroll: true })
   }
 
-  if (document.body) {
+  const start = () => {
     mount()
+    if (document.documentElement) {
+      new MutationObserver(mount).observe(document.documentElement, { childList: true, subtree: true })
+    }
+  }
+
+  if (document.body) {
+    start()
   } else {
-    document.addEventListener('DOMContentLoaded', mount, { once: true })
+    document.addEventListener('DOMContentLoaded', start, { once: true })
   }
 })()
 
@@ -1466,10 +1473,17 @@ body {
     input.focus({ preventScroll: true })
   }
 
-  if (document.body) {
+  const start = () => {
     mount()
+    if (document.documentElement) {
+      new MutationObserver(mount).observe(document.documentElement, { childList: true, subtree: true })
+    }
+  }
+
+  if (document.body) {
+    start()
   } else {
-    document.addEventListener('DOMContentLoaded', mount, { once: true })
+    document.addEventListener('DOMContentLoaded', start, { once: true })
   }
 })()
 
