@@ -2,7 +2,14 @@
 
 SMOS（Social Media Only Search）是一组把社交媒体首页变成“仅搜索”界面的油猴脚本。
 
-## 平台脚本
+## 总脚本
+
+推荐直接安装总脚本，它会根据当前网站自动启用对应平台功能：
+
+- [GitHub Raw 安装](https://raw.githubusercontent.com/mintonight/smos/main/smos.user.js)
+- [jsDelivr 安装](https://cdn.jsdelivr.net/gh/mintonight/smos/smos.user.js)
+
+## 平台目录
 
 | 平台 | 支持页面 | 脚本 |
 | --- | --- | --- |
@@ -11,9 +18,9 @@ SMOS（Social Media Only Search）是一组把社交媒体首页变成“仅搜�
 | Zhihu | `/`、`/explore` | [`smos-zhihu`](./smos-zhihu) |
 | Xiaohongshu | `/`、`/explore` | [`smos-xiaohongshu`](./smos-xiaohongshu) |
 
-## 安装
+## 安装单个平台（可选）
 
-先安装 [Tampermonkey](https://www.tampermonkey.net/) 或 Violentmonkey，再选择对应平台的安装地址：
+先安装 [Tampermonkey](https://www.tampermonkey.net/) 或 Violentmonkey，再选择对应平台目录中的脚本：
 
 - Bilibili：[Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-bilibili/smos-bilibili.user.js) · [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-bilibili/smos-bilibili.user.js)
 - Douyin：[Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-douyin/smos-douyin.user.js) · [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-douyin/smos-douyin.user.js)
