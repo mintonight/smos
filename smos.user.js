@@ -960,6 +960,10 @@ body {
 ;(() => {
   'use strict'
 
+  if (location.hostname !== 'www.douyin.com') {
+    return
+  }
+
   const isJingxuan = location.pathname === '/jingxuan'
   const isRecommendHome =
     location.pathname === '/' && new URLSearchParams(location.search).has('recommend')
@@ -1244,7 +1248,7 @@ audio {
 ;(() => {
   'use strict'
 
-  if (location.pathname !== '/' && location.pathname !== '/explore') {
+  if (location.hostname !== 'www.zhihu.com' || (location.pathname !== '/' && location.pathname !== '/explore')) {
     return
   }
 
@@ -1359,7 +1363,7 @@ main[role="main"] {
 ;(() => {
   'use strict'
 
-  if (location.pathname !== '/' && location.pathname !== '/explore') {
+  if (location.hostname !== 'www.xiaohongshu.com' || (location.pathname !== '/' && location.pathname !== '/explore')) {
     return
   }
 
