@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · All Platforms
 // @namespace    https://github.com/mintonight/smos
-// @version      1.4.0
+// @version      1.4.1
 // @description  SMOS：Bilibili、抖音、知乎和小红书仅搜索首页
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -19,6 +19,8 @@
 // @match        *://www.douyin.com/*
 // @match        *://www.zhihu.com/*
 // @match        *://www.xiaohongshu.com/*
+// @icon         https://raw.githubusercontent.com/mintonight/smos/main/extension/icons/icon48.png
+// @icon64       https://raw.githubusercontent.com/mintonight/smos/main/extension/icons/icon128.png
 // @run-at       document-start
 // @grant        unsafeWindow
 // @grant        GM_addStyle
@@ -1427,8 +1429,14 @@ audio {
 }
 `
 
+  // 记录被 SMOS 静音的媒体，离开目标页时恢复，避免播放器图标显示有声但实际静音
+  const mutedBySmos = new WeakSet()
+
   const stopMedia = media => {
     media.autoplay = false
+    if (!media.muted) {
+      mutedBySmos.add(media)
+    }
     media.muted = true
     media.removeAttribute('autoplay')
     media.pause()
@@ -1441,12 +1449,23 @@ audio {
     root.querySelectorAll?.('video, audio').forEach(stopMedia)
   }
 
-  let mediaBlockingActive = true
+  // 只在目标页（精选 / 推荐首页）启用；合并脚本在其他站点、抖音视频页等都不能静音
+  let mediaBlockingActive = isTargetPage()
 
   const muteMedia = media => {
     if (!media.muted) {
+      mutedBySmos.add(media)
       media.muted = true
     }
+  }
+
+  const restoreMedia = () => {
+    document.querySelectorAll('video, audio').forEach(media => {
+      if (mutedBySmos.has(media)) {
+        mutedBySmos.delete(media)
+        media.muted = false
+      }
+    })
   }
 
   const ensureMuted = () => {
@@ -1569,6 +1588,9 @@ audio {
   }
 
   const deactivate = () => {
+    if (mediaBlockingActive) {
+      restoreMedia()
+    }
     mediaBlockingActive = false
     document.getElementById('dys-root')?.remove()
     if (styleEl) {

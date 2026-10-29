@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · Douyin
 // @namespace    https://github.com/mintonight/smos
-// @version      1.2.0
+// @version      1.2.1
 // @description  SMOS Douyin：抖音精选页和推荐页仅保留导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -9,7 +9,8 @@
 // @downloadURL  https://raw.githubusercontent.com/mintonight/smos/main/smos-douyin/smos-douyin.user.js
 // @updateURL    https://raw.githubusercontent.com/mintonight/smos/main/smos-douyin/smos-douyin.user.js
 // @match        *://www.douyin.com/*
-// @icon         https://www.douyin.com/favicon.ico
+// @icon         https://raw.githubusercontent.com/mintonight/smos/main/extension/icons/icon48.png
+// @icon64       https://raw.githubusercontent.com/mintonight/smos/main/extension/icons/icon128.png
 // @run-at       document-start
 // @grant        unsafeWindow
 // @grant        GM_addStyle
@@ -353,8 +354,14 @@ audio {
 }
 `
 
+  // 记录被 SMOS 静音的媒体，离开目标页时恢复，避免播放器图标显示有声但实际静音
+  const mutedBySmos = new WeakSet()
+
   const stopMedia = media => {
     media.autoplay = false
+    if (!media.muted) {
+      mutedBySmos.add(media)
+    }
     media.muted = true
     media.removeAttribute('autoplay')
     media.pause()
@@ -367,12 +374,23 @@ audio {
     root.querySelectorAll?.('video, audio').forEach(stopMedia)
   }
 
-  let mediaBlockingActive = true
+  // 只在目标页（精选 / 推荐首页）启用；合并脚本在其他站点、抖音视频页等都不能静音
+  let mediaBlockingActive = isTargetPage()
 
   const muteMedia = media => {
     if (!media.muted) {
+      mutedBySmos.add(media)
       media.muted = true
     }
+  }
+
+  const restoreMedia = () => {
+    document.querySelectorAll('video, audio').forEach(media => {
+      if (mutedBySmos.has(media)) {
+        mutedBySmos.delete(media)
+        media.muted = false
+      }
+    })
   }
 
   const ensureMuted = () => {
@@ -495,6 +513,9 @@ audio {
   }
 
   const deactivate = () => {
+    if (mediaBlockingActive) {
+      restoreMedia()
+    }
     mediaBlockingActive = false
     document.getElementById('dys-root')?.remove()
     if (styleEl) {

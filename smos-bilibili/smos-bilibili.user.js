@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · Bilibili
 // @namespace    https://github.com/mintonight/smos
-// @version      1.4.0
+// @version      1.4.1
 // @description  SMOS Bilibili：B站仅搜索首页、隐藏相关推荐并默认宽屏
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -16,8 +16,8 @@
 // @match        *://www.bilibili.com/medialist/play/*
 // @match        *://www.bilibili.com/cheese/*
 // @match        *://www.bilibili.com/festival/*
-// @icon         https://www.bilibili.com/favicon.ico
-// @icon64       https://www.bilibili.com/favicon.ico
+// @icon         https://raw.githubusercontent.com/mintonight/smos/main/extension/icons/icon48.png
+// @icon64       https://raw.githubusercontent.com/mintonight/smos/main/extension/icons/icon128.png
 // @run-at       document-start
 // @grant        unsafeWindow
 // @grant        GM_addStyle
