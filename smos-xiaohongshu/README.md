@@ -24,6 +24,7 @@ https://cdn.jsdelivr.net/gh/mintonight/smos/smos-xiaohongshu/smos-xiaohongshu.us
 - 支持小红书根首页和发现页。
 - 保留顶部搜索栏、左侧导航、创作中心和通知入口。
 - 隐藏发现页信息流和推荐内容。
+- 自动跟随亮色/深色模式调整搜索框配色。
 - 在内容区显示中央搜索框。
 - 搜索后进入小红书原生搜索结果页。
 - 不处理笔记详情页和搜索结果页。

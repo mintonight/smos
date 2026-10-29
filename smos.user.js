@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · All Platforms
 // @namespace    https://github.com/mintonight/smos
-// @version      1.1.3
+// @version      1.1.5
 // @description  SMOS：Bilibili、抖音、知乎和小红书仅搜索首页
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -1095,11 +1095,11 @@ body {
   let styleEl = null
 
   const DEFAULTS = {
-    bgColor: '#0f0f12',
+    bgColor: '',
     bgImage: '',
   }
 
-  const getBgColor = () => GM_getValue('douyinstudy.bgColor', DEFAULTS.bgColor) || DEFAULTS.bgColor
+  const getBgColor = () => (GM_getValue('douyinstudy.bgColor', DEFAULTS.bgColor) || '').trim()
   const getBgImage = () => (GM_getValue('douyinstudy.bgImage', DEFAULTS.bgImage) || '').trim()
 
   const addStyle = css => {
@@ -1138,7 +1138,12 @@ body {
       return
     }
     const image = getBgImage()
-    root.style.setProperty('--dys-bg-color', getBgColor())
+    const color = getBgColor()
+    if (color) {
+      root.style.setProperty('--dys-bg-color', color)
+    } else {
+      root.style.removeProperty('--dys-bg-color')
+    }
     root.style.setProperty(
       '--dys-bg-image',
       image ? `url(${JSON.stringify(image)})` : 'none',
@@ -1146,12 +1151,31 @@ body {
   }
 
   const CSS = `
+:root {
+  --smos-page-bg: #0f0f12;
+  --smos-surface: rgba(255, 255, 255, 0.96);
+  --smos-border: rgba(255, 255, 255, 0.16);
+  --smos-text: #161616;
+  --smos-muted: #777777;
+  --smos-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+  --smos-overlay: rgba(15, 15, 18, 0.18);
+}
+
+[data-smos-theme="light"] {
+  --smos-page-bg: #f5f5f7;
+  --smos-surface: #ffffff;
+  --smos-border: rgba(0, 0, 0, 0.08);
+  --smos-text: #161616;
+  --smos-muted: #777777;
+  --smos-shadow: 0 18px 60px rgba(0, 0, 0, 0.18);
+  --smos-overlay: rgba(255, 255, 255, 0.1);
+}
+
 html, body {
   width: 100% !important;
   height: 100% !important;
   margin: 0 !important;
   overflow: hidden !important;
-  background: var(--dys-bg-color, #0f0f12) !important;
 }
 
 /* 原生顶栏是稳定的 #douyin-header；它的同级节点就是精选/推荐内容区。 */
@@ -1171,9 +1195,9 @@ html, body {
   box-sizing: border-box;
   padding: 24px 20px 40px;
   pointer-events: auto;
-  background-color: var(--dys-bg-color, #0f0f12);
+  background-color: var(--dys-bg-color, var(--smos-page-bg));
   background-image:
-    linear-gradient(rgba(15, 15, 18, 0.18), rgba(15, 15, 18, 0.18)),
+    linear-gradient(var(--smos-overlay), var(--smos-overlay)),
     var(--dys-bg-image, none);
   background-position: center;
   background-size: cover;
@@ -1190,17 +1214,17 @@ audio {
   display: flex;
   width: min(640px, 92vw);
   padding: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid var(--smos-border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+  background: var(--smos-surface);
+  box-shadow: var(--smos-shadow);
   backdrop-filter: blur(14px);
   pointer-events: auto;
 }
 
 #dys-form:focus-within {
   border-color: rgba(254, 44, 85, 0.72);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32), 0 0 0 3px rgba(254, 44, 85, 0.15);
+  box-shadow: var(--smos-shadow), 0 0 0 3px rgba(254, 44, 85, 0.15);
 }
 
 #dys-input {
@@ -1210,12 +1234,12 @@ audio {
   border: 0;
   outline: 0;
   background: transparent;
-  color: #161616;
+  color: var(--smos-text);
   font: 16px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 #dys-input::placeholder {
-  color: #777;
+  color: var(--smos-muted);
 }
 
 #dys-submit {
@@ -1370,6 +1394,31 @@ audio {
     return true
   }
 
+  const applyTheme = () => {
+    const root = document.documentElement
+    if (!root || !document.body) {
+      return
+    }
+    const readBackground = () => {
+      for (const el of [document.body, document.documentElement]) {
+        if (!el) {
+          continue
+        }
+        const color = getComputedStyle(el).backgroundColor
+        if (color && color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent') {
+          return color
+        }
+      }
+      return ''
+    }
+    const color = readBackground()
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+    const dark = match
+      ? 0.2126 * Number(match[1]) + 0.7152 * Number(match[2]) + 0.0722 * Number(match[3]) < 128
+      : true
+    root.dataset.smosTheme = dark ? 'dark' : 'light'
+  }
+
   const deactivate = () => {
     mediaBlockingActive = false
     document.getElementById('dys-root')?.remove()
@@ -1379,6 +1428,7 @@ audio {
   }
 
   const sync = () => {
+    applyTheme()
     if (isTargetPage()) {
       if (!mediaBlockingActive) {
         mediaBlockingActive = true
@@ -1663,6 +1713,9 @@ main[role="main"] {
   }
 
   const sync = () => {
+    if (typeof applyTheme === 'function') {
+      applyTheme()
+    }
     if (isTargetPage()) {
       if (styleEl) {
         styleEl.disabled = false
@@ -1790,12 +1843,49 @@ main[role="main"] {
   }
 
   addStyle(`
+:root {
+  --smos-page-bg: #fafafa;
+  --smos-surface: #ffffff;
+  --smos-border: #e5e5e5;
+  --smos-text: #222222;
+  --smos-muted: #888888;
+  --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --smos-page-bg: #141418;
+    --smos-surface: #1f1f24;
+    --smos-border: #33333a;
+    --smos-text: #eeeeee;
+    --smos-muted: #999999;
+    --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+}
+
+[data-smos-theme="dark"] {
+  --smos-page-bg: #141418;
+  --smos-surface: #1f1f24;
+  --smos-border: #33333a;
+  --smos-text: #eeeeee;
+  --smos-muted: #999999;
+  --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-smos-theme="light"] {
+  --smos-page-bg: #fafafa;
+  --smos-surface: #ffffff;
+  --smos-border: #e5e5e5;
+  --smos-text: #222222;
+  --smos-muted: #888888;
+  --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
 html,
 body {
   height: 100% !important;
   margin: 0 !important;
   overflow: hidden !important;
-  background: #fff !important;
 }
 
 #exploreFeeds,
@@ -1811,22 +1901,22 @@ body {
   place-items: center;
   box-sizing: border-box;
   padding: 24px;
-  background: #fff;
+  background: var(--smos-page-bg);
 }
 
 #smos-form {
   display: flex;
   width: min(680px, 92vw);
   padding: 8px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--smos-border);
   border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  background: var(--smos-surface);
+  box-shadow: var(--smos-shadow);
 }
 
 #smos-form:focus-within {
   border-color: #ff2442;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(255, 36, 66, 0.12);
+  box-shadow: var(--smos-shadow), 0 0 0 3px rgba(255, 36, 66, 0.12);
 }
 
 #smos-input {
@@ -1835,9 +1925,13 @@ body {
   padding: 13px 15px;
   border: 0;
   outline: 0;
-  color: #222;
+  color: var(--smos-text);
   background: transparent;
   font: 16px/1.4 system-ui, sans-serif;
+}
+
+#smos-input::placeholder {
+  color: var(--smos-muted);
 }
 
 #smos-submit {
@@ -1870,6 +1964,31 @@ body {
     const left = sideRect && sideRect.width > 0 ? Math.ceil(sideRect.right) : 0
     document.documentElement.style.setProperty('--smos-top', `${Math.max(0, top)}px`)
     document.documentElement.style.setProperty('--smos-left', `${Math.max(0, left)}px`)
+  }
+
+  const applyTheme = () => {
+    const root = document.documentElement
+    if (!root || !document.body) {
+      return
+    }
+    const readBackground = () => {
+      for (const el of [document.body, document.documentElement]) {
+        if (!el) {
+          continue
+        }
+        const color = getComputedStyle(el).backgroundColor
+        if (color && color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent') {
+          return color
+        }
+      }
+      return ''
+    }
+    const color = readBackground()
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+    const dark = match
+      ? 0.2126 * Number(match[1]) + 0.7152 * Number(match[2]) + 0.0722 * Number(match[3]) < 128
+      : matchMedia('(prefers-color-scheme: dark)').matches
+    root.dataset.smosTheme = dark ? 'dark' : 'light'
   }
 
   let resizeBound = false
@@ -1916,6 +2035,9 @@ body {
   }
 
   const sync = () => {
+    if (typeof applyTheme === 'function') {
+      applyTheme()
+    }
     if (isTargetPage()) {
       if (styleEl) {
         styleEl.disabled = false

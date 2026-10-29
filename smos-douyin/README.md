@@ -27,6 +27,7 @@ https://cdn.jsdelivr.net/gh/mintonight/smos/smos-douyin/smos-douyin.user.js
 - 保留抖音原生顶栏和侧栏。
 - 隐藏精选页、推荐页信息流。
 - 进入页面后自动静音并暂停视频/音频，避免突然外放。
+- 自动跟随页面亮/暗主题调整搜索框配色。
 - 在内容区显示中央搜索框。
 - 搜索后进入 `/search/关键词` 结果页。
 - 不处理视频详情页和搜索结果页。

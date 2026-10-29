@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · Xiaohongshu
 // @namespace    https://github.com/mintonight/smos
-// @version      1.1.3
+// @version      1.1.5
 // @description  SMOS Xiaohongshu：小红书首页和发现页仅保留导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -106,12 +106,49 @@
   }
 
   addStyle(`
+:root {
+  --smos-page-bg: #fafafa;
+  --smos-surface: #ffffff;
+  --smos-border: #e5e5e5;
+  --smos-text: #222222;
+  --smos-muted: #888888;
+  --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --smos-page-bg: #141418;
+    --smos-surface: #1f1f24;
+    --smos-border: #33333a;
+    --smos-text: #eeeeee;
+    --smos-muted: #999999;
+    --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+}
+
+[data-smos-theme="dark"] {
+  --smos-page-bg: #141418;
+  --smos-surface: #1f1f24;
+  --smos-border: #33333a;
+  --smos-text: #eeeeee;
+  --smos-muted: #999999;
+  --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-smos-theme="light"] {
+  --smos-page-bg: #fafafa;
+  --smos-surface: #ffffff;
+  --smos-border: #e5e5e5;
+  --smos-text: #222222;
+  --smos-muted: #888888;
+  --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
 html,
 body {
   height: 100% !important;
   margin: 0 !important;
   overflow: hidden !important;
-  background: #fff !important;
 }
 
 #exploreFeeds,
@@ -127,22 +164,22 @@ body {
   place-items: center;
   box-sizing: border-box;
   padding: 24px;
-  background: #fff;
+  background: var(--smos-page-bg);
 }
 
 #smos-form {
   display: flex;
   width: min(680px, 92vw);
   padding: 8px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--smos-border);
   border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  background: var(--smos-surface);
+  box-shadow: var(--smos-shadow);
 }
 
 #smos-form:focus-within {
   border-color: #ff2442;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(255, 36, 66, 0.12);
+  box-shadow: var(--smos-shadow), 0 0 0 3px rgba(255, 36, 66, 0.12);
 }
 
 #smos-input {
@@ -151,9 +188,13 @@ body {
   padding: 13px 15px;
   border: 0;
   outline: 0;
-  color: #222;
+  color: var(--smos-text);
   background: transparent;
   font: 16px/1.4 system-ui, sans-serif;
+}
+
+#smos-input::placeholder {
+  color: var(--smos-muted);
 }
 
 #smos-submit {
@@ -186,6 +227,31 @@ body {
     const left = sideRect && sideRect.width > 0 ? Math.ceil(sideRect.right) : 0
     document.documentElement.style.setProperty('--smos-top', `${Math.max(0, top)}px`)
     document.documentElement.style.setProperty('--smos-left', `${Math.max(0, left)}px`)
+  }
+
+  const applyTheme = () => {
+    const root = document.documentElement
+    if (!root || !document.body) {
+      return
+    }
+    const readBackground = () => {
+      for (const el of [document.body, document.documentElement]) {
+        if (!el) {
+          continue
+        }
+        const color = getComputedStyle(el).backgroundColor
+        if (color && color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent') {
+          return color
+        }
+      }
+      return ''
+    }
+    const color = readBackground()
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+    const dark = match
+      ? 0.2126 * Number(match[1]) + 0.7152 * Number(match[2]) + 0.0722 * Number(match[3]) < 128
+      : matchMedia('(prefers-color-scheme: dark)').matches
+    root.dataset.smosTheme = dark ? 'dark' : 'light'
   }
 
   let resizeBound = false
@@ -232,6 +298,9 @@ body {
   }
 
   const sync = () => {
+    if (typeof applyTheme === 'function') {
+      applyTheme()
+    }
     if (isTargetPage()) {
       if (styleEl) {
         styleEl.disabled = false

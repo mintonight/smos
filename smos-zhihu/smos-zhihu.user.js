@@ -215,6 +215,9 @@ main[role="main"] {
   }
 
   const sync = () => {
+    if (typeof applyTheme === 'function') {
+      applyTheme()
+    }
     if (isTargetPage()) {
       if (styleEl) {
         styleEl.disabled = false
