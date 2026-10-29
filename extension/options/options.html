@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SMOS 设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header class="page-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1>SMOS 设置</h1>
+        <p>社交媒体 · 仅搜索</p>
+      </div>
+    </div>
+    <span class="version" id="version"></span>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="section-head">
+        <h2>平台开关</h2>
+        <p>关闭后对应网站恢复原生首页，已打开的页面会自动刷新。</p>
+      </div>
+      <div class="platform-list">
+        <label class="platform-row">
+          <span class="platform-icon icon-bilibili" aria-hidden="true">B</span>
+          <span class="platform-copy"><strong>Bilibili</strong><small>首页与播放页</small></span>
+          <input class="toggle-input" type="checkbox" data-key="smos.enabled.bilibili" aria-label="启用 Bilibili">
+          <span class="toggle" aria-hidden="true"></span>
+        </label>
+        <label class="platform-row">
+          <span class="platform-icon icon-douyin" aria-hidden="true">抖</span>
+          <span class="platform-copy"><strong>抖音</strong><small>精选与推荐页</small></span>
+          <input class="toggle-input" type="checkbox" data-key="smos.enabled.douyin" aria-label="启用抖音">
+          <span class="toggle" aria-hidden="true"></span>
+        </label>
+        <label class="platform-row">
+          <span class="platform-icon icon-zhihu" aria-hidden="true">知</span>
+          <span class="platform-copy"><strong>知乎</strong><small>首页、发现与热榜</small></span>
+          <input class="toggle-input" type="checkbox" data-key="smos.enabled.zhihu" aria-label="启用知乎">
+          <span class="toggle" aria-hidden="true"></span>
+        </label>
+        <label class="platform-row">
+          <span class="platform-icon icon-xiaohongshu" aria-hidden="true">小</span>
+          <span class="platform-copy"><strong>小红书</strong><small>首页与发现页</small></span>
+          <input class="toggle-input" type="checkbox" data-key="smos.enabled.xiaohongshu" aria-label="启用小红书">
+          <span class="toggle" aria-hidden="true"></span>
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Bilibili 播放器</h2>
+        <p>仅在 Bilibili 视频和播放页生效。</p>
+      </div>
+      <div class="field">
+        <label for="player-mode">默认播放器模式</label>
+        <select id="player-mode">
+          <option value="normal">常规</option>
+          <option value="wide">宽屏</option>
+          <option value="web">网页全屏</option>
+          <option value="full">全屏</option>
+        </select>
+      </div>
+      <label class="check-row">
+        <input id="hide-related" type="checkbox">
+        <span>隐藏相关推荐</span>
+      </label>
+      <label class="check-row">
+        <input id="apply-on-play" type="checkbox">
+        <span>播放时应用播放器模式</span>
+      </label>
+      <p class="hint">自定义背景功能暂未加入扩展版本。</p>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>关于</h2>
+        <p>版本 <span id="about-version"></span> · MIT License</p>
+      </div>
+      <div class="actions">
+        <a class="button" href="https://github.com/mintonight/smos" target="_blank" rel="noreferrer">GitHub 仓库</a>
+        <button class="button danger" id="reset" type="button">恢复默认设置</button>
+      </div>
+    </section>
+  </main>
+
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+
+  <script src="options.js"></script>
+</body>
+</html>

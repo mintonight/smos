@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SMOS</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1>SMOS</h1>
+        <p>社交媒体 · 仅搜索</p>
+      </div>
+    </div>
+    <span class="version" id="version"></span>
+  </header>
+
+  <main class="platforms">
+    <label class="platform">
+      <span class="platform-icon icon-bilibili" aria-hidden="true">B</span>
+      <span class="platform-copy"><strong>Bilibili</strong><small>首页与播放页</small></span>
+      <input class="toggle-input" type="checkbox" data-key="smos.enabled.bilibili" aria-label="启用 Bilibili">
+      <span class="toggle" aria-hidden="true"></span>
+    </label>
+    <label class="platform">
+      <span class="platform-icon icon-douyin" aria-hidden="true">抖</span>
+      <span class="platform-copy"><strong>抖音</strong><small>精选与推荐页</small></span>
+      <input class="toggle-input" type="checkbox" data-key="smos.enabled.douyin" aria-label="启用抖音">
+      <span class="toggle" aria-hidden="true"></span>
+    </label>
+    <label class="platform">
+      <span class="platform-icon icon-zhihu" aria-hidden="true">知</span>
+      <span class="platform-copy"><strong>知乎</strong><small>首页、发现与热榜</small></span>
+      <input class="toggle-input" type="checkbox" data-key="smos.enabled.zhihu" aria-label="启用知乎">
+      <span class="toggle" aria-hidden="true"></span>
+    </label>
+    <label class="platform">
+      <span class="platform-icon icon-xiaohongshu" aria-hidden="true">小</span>
+      <span class="platform-copy"><strong>小红书</strong><small>首页与发现页</small></span>
+      <input class="toggle-input" type="checkbox" data-key="smos.enabled.xiaohongshu" aria-label="启用小红书">
+      <span class="toggle" aria-hidden="true"></span>
+    </label>
+  </main>
+
+  <p class="status" id="status" role="status" aria-live="polite"></p>
+
+  <footer class="footer">
+    <button class="text-button" id="open-options" type="button">高级设置</button>
+    <a class="text-button" href="https://github.com/mintonight/smos" target="_blank" rel="noreferrer">GitHub</a>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

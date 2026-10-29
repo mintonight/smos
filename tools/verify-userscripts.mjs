@@ -31,21 +31,21 @@ const platforms = [
     file: 'smos-douyin/smos-douyin.user.js',
     marker: '/* SMOS Douyin */',
     nextMarker: '/* SMOS Zhihu */',
-    requiredMatches: ['*://www.douyin.com/', '*://www.douyin.com/jingxuan*'],
+    requiredMatches: ['*://www.douyin.com/*'],
   },
   {
     key: 'zhihu',
     file: 'smos-zhihu/smos-zhihu.user.js',
     marker: '/* SMOS Zhihu */',
     nextMarker: '/* SMOS Xiaohongshu */',
-    requiredMatches: ['*://www.zhihu.com/', '*://www.zhihu.com/explore'],
+    requiredMatches: ['*://www.zhihu.com/*'],
   },
   {
     key: 'xiaohongshu',
     file: 'smos-xiaohongshu/smos-xiaohongshu.user.js',
     marker: '/* SMOS Xiaohongshu */',
     nextMarker: null,
-    requiredMatches: ['*://www.xiaohongshu.com/', '*://www.xiaohongshu.com/explore'],
+    requiredMatches: ['*://www.xiaohongshu.com/*'],
   },
 ]
 

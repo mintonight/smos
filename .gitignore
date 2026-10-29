@@ -1,0 +1,7 @@
+# Extension signing key — never commit this file.
+.keys/
+*.pem
+
+# Release artifacts
+dist/
+*.crx

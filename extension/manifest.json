@@ -1,0 +1,84 @@
+{
+  "manifest_version": 3,
+  "name": "SMOS · 社交媒体仅搜索",
+  "short_name": "SMOS",
+  "version": "1.0.0",
+  "description": "把 Bilibili、抖音、知乎、小红书的首页变成仅搜索界面。",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_title": "SMOS 设置",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.bilibili.com/",
+        "*://www.bilibili.com/index.html",
+        "*://www.bilibili.com/video/*",
+        "*://www.bilibili.com/bangumi/play/*",
+        "*://www.bilibili.com/list/*",
+        "*://www.bilibili.com/medialist/play/*",
+        "*://www.bilibili.com/cheese/*",
+        "*://www.bilibili.com/festival/*"
+      ],
+      "js": [
+        "content/00-core.js",
+        "content/10-bilibili.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "*://www.douyin.com/*"
+      ],
+      "js": [
+        "content/00-core.js",
+        "content/20-douyin.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "*://www.zhihu.com/*"
+      ],
+      "js": [
+        "content/00-core.js",
+        "content/30-zhihu.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "*://www.xiaohongshu.com/*"
+      ],
+      "js": [
+        "content/00-core.js",
+        "content/40-xiaohongshu.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4gXGhjsI9310JlJKmsCxZZLthA5iJ1eWb4JKtvVmrAz0PMT7gny9puuKFtToKoMBX90vCjl/gPEJEyBJTV/qnc0/cTTcHFSY/l6hqir9zue86hx6FbsmE5+qaw+3kPi+yd+GeDkpduaAm1JQ7SH6gruV99idNrGLa6dUwFj5Pw/oydmf2z0oZUS3MDxDAVFzn5Xnuz8j4+XYQ6EIXjta1dR8bGtWu4kU19p4rme7sT4j5h/pVrWIuV5YY/YNrmNCX+bpgp1LHn1rb3Mlb5Glia5xTCQVaejBdLBLP84uGJlIWvwTIzbYRVflZTSaWVd0uhQclTKgyb/1LVrOIeT8ywIDAQAB"
+}

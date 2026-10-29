@@ -1,0 +1,110 @@
+name: Release extension
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-extension
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build content scripts
+        run: node tools/build-extension.mjs
+
+      - name: Verify userscripts
+        run: node tools/verify-userscripts.mjs
+
+      - name: Verify extension
+        run: node tools/verify-extension.mjs
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./extension/manifest.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare signing key
+        env:
+          CRX_PRIVATE_KEY: ${{ secrets.CRX_PRIVATE_KEY }}
+        run: |
+          if [ -z "${CRX_PRIVATE_KEY:-}" ]; then
+            echo "::error::CRX_PRIVATE_KEY secret is not set. Run node tools/setup-crx-key.mjs locally, then add .keys/smos-extension.pem as a base64 GitHub secret."
+            exit 1
+          fi
+          mkdir -p .keys
+          printf '%s' "$CRX_PRIVATE_KEY" | base64 -d > .keys/smos-extension.pem
+          chmod 600 .keys/smos-extension.pem
+
+      - name: Pack CRX and ZIP
+        run: node tools/pack-crx.mjs --key .keys/smos-extension.pem --out dist
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum *.crx *.zip > SHA256SUMS.txt
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: smos-extension-${{ steps.version.outputs.version }}
+          path: |
+            dist/*.crx
+            dist/*.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+
+      - name: Create tag and GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; nothing to do."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists."
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+          cat > dist/release-notes.md <<EOF
+          ## SMOS 浏览器扩展 $TAG
+
+          - smos-extension-${{ steps.version.outputs.version }}.crx：签名后的 CRX 文件。
+          - smos-extension-${{ steps.version.outputs.version }}.zip：可上传 Chrome Web Store，或解压后以开发者模式加载。
+          - SHA256SUMS.txt：发布文件校验和。
+
+          安装与开发说明见 [extension/README.md](https://github.com/mintonight/smos/blob/main/extension/README.md)。
+          EOF
+
+          gh release create "$TAG" \
+            --title "SMOS $TAG" \
+            --notes-file dist/release-notes.md \
+            --verify-tag \
+            dist/*.crx dist/*.zip dist/SHA256SUMS.txt
