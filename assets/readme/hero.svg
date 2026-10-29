@@ -3,44 +3,44 @@
   <desc id="smos-desc">SMOS 把 Bilibili、抖音、知乎、小红书的首页变成只有搜索框的沉浸式页面。</desc>
   <defs>
     <linearGradient id="smos-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#121217"/>
-      <stop offset="1" stop-color="#070709"/>
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F7F7F9"/>
     </linearGradient>
   </defs>
 
   <rect width="1200" height="360" rx="28" fill="url(#smos-bg)"/>
-  <rect x="2" y="2" width="1196" height="356" rx="26" fill="none" stroke="#2A2A33" stroke-width="2"/>
+  <rect x="2" y="2" width="1196" height="356" rx="26" fill="none" stroke="#E4E4EA" stroke-width="2"/>
 
   <g transform="translate(64 46)">
-    <text x="0" y="0" fill="#FF5A70" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" letter-spacing="4">SOCIAL MEDIA ONLY SEARCH</text>
-    <text x="0" y="92" fill="#F5F5F7" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="92" font-weight="800" letter-spacing="2">SMOS</text>
-    <text x="0" y="144" fill="#F5F5F7" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="30" font-weight="500">把社交媒体首页，变成只有搜索。</text>
-    <text x="0" y="184" fill="#92929C" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="20">Bilibili · 抖音 · 知乎 · 小红书</text>
+    <text x="0" y="0" fill="#E11D48" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="600" letter-spacing="4">SOCIAL MEDIA ONLY SEARCH</text>
+    <text x="0" y="92" fill="#0A0A0C" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="92" font-weight="800" letter-spacing="2">SMOS</text>
+    <text x="0" y="144" fill="#18191C" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="30" font-weight="500">把社交媒体首页，变成只有搜索。</text>
+    <text x="0" y="184" fill="#6F6F7A" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="20">Bilibili · 抖音 · 知乎 · 小红书</text>
 
     <g transform="translate(0 218)">
-      <rect x="0" y="0" width="150" height="34" rx="17" fill="#17171D" stroke="#2B2B33" stroke-width="1.5"/>
-      <text x="18" y="23" fill="#C9C9D2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">USERSCRIPT</text>
-      <rect x="160" y="0" width="146" height="34" rx="17" fill="#17171D" stroke="#2B2B33" stroke-width="1.5"/>
-      <text x="178" y="23" fill="#C9C9D2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">EXTENSION</text>
+      <rect x="0" y="0" width="150" height="34" rx="17" fill="#F6F6F8" stroke="#E1E1E7" stroke-width="1.5"/>
+      <text x="18" y="23" fill="#4A4A55" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">USERSCRIPT</text>
+      <rect x="160" y="0" width="146" height="34" rx="17" fill="#F6F6F8" stroke="#E1E1E7" stroke-width="1.5"/>
+      <text x="178" y="23" fill="#4A4A55" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18">EXTENSION</text>
     </g>
   </g>
 
-  <line x1="720" y1="48" x2="720" y2="312" stroke="#2B2B33" stroke-width="1.5"/>
+  <line x1="720" y1="48" x2="720" y2="312" stroke="#E4E4EA" stroke-width="1.5"/>
 
   <g transform="translate(760 48)">
-    <rect width="376" height="264" rx="22" fill="#15151B" stroke="#2E2E37" stroke-width="1.5"/>
+    <rect width="376" height="264" rx="22" fill="#FAFAFB" stroke="#E4E4EA" stroke-width="1.5"/>
 
     <g transform="translate(24 24)">
       <rect width="64" height="64" rx="16" fill="#0A0A0C" stroke="#2C2C34" stroke-width="1.5"/>
-      <circle cx="32" cy="28" r="14" fill="none" stroke="#F5F5F7" stroke-width="5"/>
+      <circle cx="32" cy="28" r="14" fill="none" stroke="#FFFFFF" stroke-width="5"/>
       <line x1="43" y1="39" x2="52" y2="48" stroke="#FF2442" stroke-width="6" stroke-linecap="round"/>
     </g>
-    <text x="104" y="52" fill="#F5F5F7" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="28" font-weight="700">SMOS</text>
-    <text x="104" y="76" fill="#92929C" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" letter-spacing="1">SEARCH ONLY</text>
+    <text x="104" y="52" fill="#0A0A0C" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="28" font-weight="700">SMOS</text>
+    <text x="104" y="76" fill="#77777F" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" letter-spacing="1">SEARCH ONLY</text>
 
     <g transform="translate(24 112)">
-      <rect width="328" height="64" rx="16" fill="#1F1F27" stroke="#3A3A44" stroke-width="1.5"/>
-      <text x="20" y="39" fill="#B9B9C4" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="20">搜索你感兴趣的内容</text>
+      <rect width="328" height="64" rx="16" fill="#FFFFFF" stroke="#D9D9E0" stroke-width="1.5"/>
+      <text x="20" y="39" fill="#6F6F7A" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="20">搜索你感兴趣的内容</text>
       <g transform="translate(292 32)">
         <circle cx="0" cy="0" r="11" fill="none" stroke="#FF2442" stroke-width="4"/>
         <line x1="8" y1="8" x2="17" y2="17" stroke="#FF2442" stroke-width="4" stroke-linecap="round"/>
@@ -49,24 +49,24 @@
 
     <g transform="translate(24 200)">
       <g>
-        <rect width="92" height="34" rx="17" fill="#121218" stroke="#2B2B33" stroke-width="1.5"/>
+        <rect width="92" height="34" rx="17" fill="#FFFFFF" stroke="#E1E1E7" stroke-width="1.5"/>
         <circle cx="14" cy="17" r="5" fill="#00AEEC"/>
-        <text x="26" y="23" fill="#D8D8E0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18">Bilibili</text>
+        <text x="26" y="23" fill="#3A3A44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18">Bilibili</text>
       </g>
       <g transform="translate(98 0)">
-        <rect width="64" height="34" rx="17" fill="#121218" stroke="#2B2B33" stroke-width="1.5"/>
+        <rect width="64" height="34" rx="17" fill="#FFFFFF" stroke="#E1E1E7" stroke-width="1.5"/>
         <circle cx="14" cy="17" r="5" fill="#FE2C55"/>
-        <text x="26" y="23" fill="#D8D8E0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18">抖音</text>
+        <text x="26" y="23" fill="#3A3A44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18">抖音</text>
       </g>
       <g transform="translate(168 0)">
-        <rect width="64" height="34" rx="17" fill="#121218" stroke="#2B2B33" stroke-width="1.5"/>
+        <rect width="64" height="34" rx="17" fill="#FFFFFF" stroke="#E1E1E7" stroke-width="1.5"/>
         <circle cx="14" cy="17" r="5" fill="#056DE8"/>
-        <text x="26" y="23" fill="#D8D8E0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18">知乎</text>
+        <text x="26" y="23" fill="#3A3A44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18">知乎</text>
       </g>
       <g transform="translate(238 0)">
-        <rect width="84" height="34" rx="17" fill="#121218" stroke="#2B2B33" stroke-width="1.5"/>
+        <rect width="84" height="34" rx="17" fill="#FFFFFF" stroke="#E1E1E7" stroke-width="1.5"/>
         <circle cx="14" cy="17" r="5" fill="#FF2442"/>
-        <text x="26" y="23" fill="#D8D8E0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18">小红书</text>
+        <text x="26" y="23" fill="#3A3A44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="18">小红书</text>
       </g>
     </g>
   </g>
