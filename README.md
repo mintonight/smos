@@ -6,6 +6,37 @@
 
 SMOS（Social Media Only Search）把社交媒体首页变成“仅搜索”界面，提供油猴脚本和 Manifest V3 浏览器扩展两种安装方式。
 
+## Preview
+
+以下截图来自加载 SMOS 扩展后的实际页面，点击图片可查看大图。
+
+<table width="100%">
+  <tr>
+    <td align="center" width="50%">
+      <a href="./assets/readme/preview-bilibili.png"><img src="./assets/readme/preview-bilibili.png" alt="SMOS Bilibili 首页搜索界面" width="100%"></a>
+      <br>
+      <sub><b>Bilibili</b></sub>
+    </td>
+    <td align="center" width="50%">
+      <a href="./assets/readme/preview-douyin.png"><img src="./assets/readme/preview-douyin.png" alt="SMOS 抖音精选页搜索界面" width="100%"></a>
+      <br>
+      <sub><b>抖音</b></sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <a href="./assets/readme/preview-zhihu.png"><img src="./assets/readme/preview-zhihu.png" alt="SMOS 知乎热榜页搜索界面" width="100%"></a>
+      <br>
+      <sub><b>知乎</b></sub>
+    </td>
+    <td align="center" width="50%">
+      <a href="./assets/readme/preview-xiaohongshu.png"><img src="./assets/readme/preview-xiaohongshu.png" alt="SMOS 小红书探索页搜索界面" width="100%"></a>
+      <br>
+      <sub><b>小红书</b></sub>
+    </td>
+  </tr>
+</table>
+
 ## 总脚本
 
 推荐直接安装总脚本，它会根据当前网站自动启用对应平台功能：
