@@ -1,8 +1,11 @@
 name: Release extension
 
+# Release flow: bump extension/manifest.json version, then push a matching tag:
+#   git tag v1.1.0 && git push origin v1.1.0
+# workflow_dispatch builds from the ref you pick and tags it with the manifest version.
 on:
   push:
-    branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -26,14 +29,31 @@ jobs:
         with:
           node-version: 22
 
-      - name: Build content scripts
-        run: node tools/build-extension.mjs
+      - name: Check signing key is configured
+        env:
+          CRX_PRIVATE_KEY: ${{ secrets.CRX_PRIVATE_KEY }}
+        run: |
+          if [ -z "${CRX_PRIVATE_KEY:-}" ]; then
+            echo "::error::CRX_PRIVATE_KEY secret is not set. Run node tools/setup-crx-key.mjs locally, then add .keys/smos-extension.pem as a base64 GitHub secret."
+            exit 1
+          fi
+
+      - name: Generated content scripts are up to date
+        run: node tools/build-extension.mjs --check
 
       - name: Verify userscripts
         run: node tools/verify-userscripts.mjs
 
       - name: Verify extension
         run: node tools/verify-extension.mjs
+
+      - name: Verify versions
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            node tools/verify-versions.mjs --tag "${GITHUB_REF_NAME}"
+          else
+            node tools/verify-versions.mjs --require-bump
+          fi
 
       - name: Read version
         id: version
@@ -46,10 +66,6 @@ jobs:
         env:
           CRX_PRIVATE_KEY: ${{ secrets.CRX_PRIVATE_KEY }}
         run: |
-          if [ -z "${CRX_PRIVATE_KEY:-}" ]; then
-            echo "::error::CRX_PRIVATE_KEY secret is not set. Run node tools/setup-crx-key.mjs locally, then add .keys/smos-extension.pem as a base64 GitHub secret."
-            exit 1
-          fi
           mkdir -p .keys
           printf '%s' "$CRX_PRIVATE_KEY" | base64 -d > .keys/smos-extension.pem
           chmod 600 .keys/smos-extension.pem
