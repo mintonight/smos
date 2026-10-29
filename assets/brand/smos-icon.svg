@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="SMOS alt B">
+  <rect width="512" height="512" rx="112" fill="#0a0a0c"/>
+  <rect x="4" y="4" width="504" height="504" rx="108" fill="none" stroke="#2c2c34" stroke-width="4"/>
+  <circle cx="256" cy="214" r="102" fill="none" stroke="#f5f5f7" stroke-width="30"/>
+  <line x1="330" y1="288" x2="398" y2="356" stroke="#ff2442" stroke-width="34" stroke-linecap="round"/>
+  <text x="256" y="448" text-anchor="middle" fill="#8f8f98" font-family="Inter, 'Segoe UI', Arial, Helvetica, sans-serif" font-size="48" font-weight="600" letter-spacing="8">SMOS</text>
+</svg>

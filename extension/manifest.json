@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SMOS · 社交媒体仅搜索",
   "short_name": "SMOS",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "把 Bilibili、抖音、知乎、小红书的首页变成仅搜索界面。",
   "permissions": [
     "storage"

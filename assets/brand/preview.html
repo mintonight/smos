@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>SMOS 图标方案预览</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 28px 32px 34px;
+      color: #f2f2f5;
+      background: #0d0d10;
+      font: 14px/1.5 system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    h1 { margin: 0 0 4px; font-size: 24px; }
+    .sub { margin: 0 0 22px; color: #92929c; font-size: 13px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      border: 1px solid #2b2b33;
+      border-radius: 20px;
+      background: #17171d;
+    }
+    .card img {
+      width: 250px;
+      height: 250px;
+      display: block;
+      border-radius: 22px;
+    }
+    .card h2 { margin: 0; font-size: 15px; }
+    .card p { margin: 0; color: #92929c; font-size: 12px; text-align: center; }
+    .tag { color: #ff5a70; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>SMOS 图标方案</h1>
+  <p class="sub">B 已选用为主图标，并应用到浏览器插件；A/C/D 保留为备选。</p>
+  <div class="grid">
+    <div class="card">
+      <img src="smos-icon.svg" alt="方案 B 已选用">
+      <h2><span class="tag">B · 已选用</span> 大放大镜 + 小字标</h2>
+      <p>当前统一图标和插件图标</p>
+    </div>
+    <div class="card">
+      <img src="smos-icon-alt-a.svg" alt="方案 A">
+      <h2><span class="tag">A</span> 搜索框 + SMOS + 红放大镜</h2>
+      <p>最贴近最初描述</p>
+    </div>
+    <div class="card">
+      <img src="smos-icon-alt-c.svg" alt="方案 C">
+      <h2><span class="tag">C</span> 药丸搜索框 + 红色按钮</h2>
+      <p>更像一个可点击的搜索控件</p>
+    </div>
+    <div class="card">
+      <img src="smos-icon-alt-d.svg" alt="方案 D">
+      <h2><span class="tag">D</span> 镜片内嵌 SMOS</h2>
+      <p>品牌字直接放进放大镜里</p>
+    </div>
+    <div class="card">
+      <img src="smos-icon-alt-b-small.svg" alt="方案 B 小尺寸版">
+      <h2><span class="tag">B</span> 小尺寸简化版</h2>
+      <p>16/32px 使用，去掉文字保证清晰</p>
+    </div>
+  </div>
+</body>
+</html>

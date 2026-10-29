@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: transparent; }
+    #icon { display: block; width: 512px; height: 512px; }
+  </style>
+</head>
+<body>
+  <img id="icon" alt="">
+  <script>
+    const params = new URLSearchParams(location.search);
+    const icon = document.getElementById("icon");
+    icon.src = params.get("icon") + ".svg";
+    const size = Number(params.get("size")) || 512;
+    icon.style.width = size + "px";
+    icon.style.height = size + "px";
+  </script>
+</body>
+</html>
