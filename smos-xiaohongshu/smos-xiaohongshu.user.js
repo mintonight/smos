@@ -1,30 +1,111 @@
 // ==UserScript==
 // @name         SMOS · Xiaohongshu
 // @namespace    https://github.com/mintonight/smos
-// @version      1.0.0
+// @version      1.1.3
 // @description  SMOS Xiaohongshu：小红书首页和发现页仅保留导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
 // @supportURL   https://github.com/mintonight/smos/issues
 // @downloadURL  https://raw.githubusercontent.com/mintonight/smos/main/smos-xiaohongshu/smos-xiaohongshu.user.js
 // @updateURL    https://raw.githubusercontent.com/mintonight/smos/main/smos-xiaohongshu/smos-xiaohongshu.user.js
-// @match        *://www.xiaohongshu.com/
-// @match        *://www.xiaohongshu.com/explore
+// @match        *://www.xiaohongshu.com/*
 // @icon         https://www.xiaohongshu.com/favicon.ico
 // @run-at       document-start
-// @grant        none
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // @license      MIT
 // ==/UserScript==
 
 ;(() => {
   'use strict'
 
-  if (location.hostname !== 'www.xiaohongshu.com' || (location.pathname !== '/' && location.pathname !== '/explore')) {
+  const PLATFORM_KEY = 'smos.enabled.xiaohongshu'
+  const PLATFORM_TAG = 'xiaohongshu'
+  const isPlatformEnabled = () => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(PLATFORM_KEY, true) !== false : true
+    } catch {
+      return true
+    }
+  }
+  const setPlatformEnabled = enabled => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(PLATFORM_KEY, enabled)
+      }
+    } catch {
+      // ignore
+    }
+  }
+  const togglePlatform = () => {
+    const next = !isPlatformEnabled()
+    if (!next && !window.confirm('关闭 SMOS · 小红书 后，搜索界面会消失。确定关闭吗？')) {
+      return
+    }
+    setPlatformEnabled(next)
+    setTimeout(() => location.reload(), 50)
+  }
+  const registerPlatformToggle = () => {
+    try {
+      if (typeof GM_registerMenuCommand === 'function') {
+        GM_registerMenuCommand(
+          isPlatformEnabled() ? 'SMOS · 小红书：已开启（点击关闭）' : 'SMOS · 小红书：已关闭（点击开启）',
+          togglePlatform,
+        )
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const schedulePlatformToggle = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerPlatformToggle, { once: true })
+    } else {
+      registerPlatformToggle()
+    }
+  }
+
+  schedulePlatformToggle()
+
+  if (!isPlatformEnabled()) {
     return
   }
 
-  const style = document.createElement('style')
-  style.textContent = `
+  const isTargetPage = () => {
+    const path = location.pathname.replace(/\/+$/, '') || '/'
+    return (
+      location.hostname === 'www.xiaohongshu.com' && (path === '/' || path === '/explore')
+    )
+  }
+
+  let styleEl = null
+
+  const addStyle = css => {
+    const create = parent => {
+      styleEl = document.createElement('style')
+      styleEl.textContent = css
+      styleEl.disabled = !isTargetPage()
+      parent.appendChild(styleEl)
+    }
+    const parent = document.head || document.documentElement
+    if (parent) {
+      create(parent)
+      return
+    }
+    const observer = new MutationObserver(() => {
+      const nextParent = document.head || document.documentElement
+      if (!nextParent) {
+        return
+      }
+      create(nextParent)
+      observer.disconnect()
+    })
+    observer.observe(document, { childList: true, subtree: true })
+  }
+
+  addStyle(`
 html,
 body {
   height: 100% !important;
@@ -40,7 +121,7 @@ body {
 
 #smos-root {
   position: fixed;
-  inset: 72px 0 0 239px;
+  inset: var(--smos-top, 178px) 0 0 var(--smos-left, 164px);
   z-index: 5;
   display: grid;
   place-items: center;
@@ -94,16 +175,34 @@ body {
     left: 0;
   }
 }
-`
-  document.documentElement.appendChild(style)
+`)
+
+  const updateFrame = () => {
+    const searchArea = document.querySelector('.search-area')
+    const sideBar = document.querySelector('.side-bar')
+    const searchRect = searchArea?.getBoundingClientRect()
+    const sideRect = sideBar?.getBoundingClientRect()
+    const top = searchRect && searchRect.height > 0 ? Math.ceil(searchRect.bottom) : 178
+    const left = sideRect && sideRect.width > 0 ? Math.ceil(sideRect.right) : 0
+    document.documentElement.style.setProperty('--smos-top', `${Math.max(0, top)}px`)
+    document.documentElement.style.setProperty('--smos-left', `${Math.max(0, left)}px`)
+  }
+
+  let resizeBound = false
 
   const mount = () => {
     if (!document.body || document.getElementById('smos-root')) {
       return Boolean(document.body)
     }
+    if (!resizeBound) {
+      resizeBound = true
+      window.addEventListener('resize', updateFrame)
+    }
+    updateFrame()
 
     const root = document.createElement('main')
     root.id = 'smos-root'
+    window.__smosMountedPlatform = PLATFORM_TAG
     root.innerHTML = `
       <form id="smos-form" role="search">
         <input id="smos-input" type="search" required autocomplete="off" aria-label="搜索小红书" placeholder="搜索小红书">
@@ -122,11 +221,44 @@ body {
     input.focus({ preventScroll: true })
   }
 
-  const start = () => {
-    mount()
-    if (document.documentElement) {
-      new MutationObserver(mount).observe(document.documentElement, { childList: true, subtree: true })
+  const deactivate = () => {
+    if (window.__smosMountedPlatform === PLATFORM_TAG) {
+      document.getElementById('smos-root')?.remove()
+      window.__smosMountedPlatform = null
     }
+    if (styleEl) {
+      styleEl.disabled = true
+    }
+  }
+
+  const sync = () => {
+    if (isTargetPage()) {
+      if (styleEl) {
+        styleEl.disabled = false
+      }
+      mount()
+    } else {
+      deactivate()
+    }
+  }
+
+  const start = () => {
+    sync()
+    if (document.documentElement) {
+      new MutationObserver(sync).observe(document.documentElement, { childList: true, subtree: true })
+    }
+    const wrapHistory = method => {
+      const original = history[method]
+      history[method] = function (...args) {
+        const result = original.apply(this, args)
+        sync()
+        return result
+      }
+    }
+    wrapHistory('pushState')
+    wrapHistory('replaceState')
+    window.addEventListener('popstate', sync)
+    setInterval(sync, 1200)
   }
 
   if (document.body) {

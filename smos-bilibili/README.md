@@ -41,6 +41,7 @@ https://cdn.jsdelivr.net/gh/mintonight/smos/smos-bilibili/smos-bilibili.user.js
 
 | 设置 | 说明 |
 |------|------|
+| SMOS · Bilibili：已开启（点击关闭） | 开关本平台脚本，关闭前会确认 |
 | 设置背景颜色 | 修改首页背景颜色 |
 | 设置背景图片 URL | 修改首页背景图片 |
 | 隐藏视频推荐 | 开关视频页相关推荐隐藏 |

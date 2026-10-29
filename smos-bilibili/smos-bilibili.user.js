@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · Bilibili
 // @namespace    https://github.com/mintonight/smos
-// @version      1.2.1
+// @version      1.3.1
 // @description  SMOS Bilibili：B站仅搜索首页、隐藏相关推荐并默认宽屏
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -28,6 +28,52 @@
 
 ;(() => {
   'use strict'
+
+  const PLATFORM_KEY = 'smos.enabled.bilibili'
+  const isPlatformEnabled = () => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(PLATFORM_KEY, true) !== false : true
+    } catch {
+      return true
+    }
+  }
+  const setPlatformEnabled = enabled => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(PLATFORM_KEY, enabled)
+      }
+    } catch {
+      // ignore
+    }
+  }
+  const togglePlatform = () => {
+    const next = !isPlatformEnabled()
+    if (!next && !window.confirm('关闭 SMOS · Bilibili 后，本平台功能会停用。确定关闭吗？')) {
+      return
+    }
+    setPlatformEnabled(next)
+    setTimeout(() => location.reload(), 50)
+  }
+  const registerPlatformToggle = () => {
+    try {
+      if (typeof GM_registerMenuCommand === 'function') {
+        GM_registerMenuCommand(
+          isPlatformEnabled() ? 'SMOS · Bilibili：已开启（点击关闭）' : 'SMOS · Bilibili：已关闭（点击开启）',
+          togglePlatform,
+        )
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const schedulePlatformToggle = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerPlatformToggle, { once: true })
+    } else {
+      registerPlatformToggle()
+    }
+  }
 
   const STORAGE = {
     bgColor: 'searchOnlyHome.bgColor',
@@ -232,10 +278,21 @@ body {
 `
 
   const applyBackgroundVars = () => {
+    const root = document.documentElement
+    if (!root) {
+      const observer = new MutationObserver(() => {
+        if (document.documentElement) {
+          observer.disconnect()
+          applyBackgroundVars()
+        }
+      })
+      observer.observe(document, { childList: true, subtree: true })
+      return
+    }
     const color = getBgColor()
     const image = getBgImage()
-    document.documentElement.style.setProperty('--soh-bg-color', color)
-    document.documentElement.style.setProperty(
+    root.style.setProperty('--soh-bg-color', color)
+    root.style.setProperty(
       '--soh-bg-image',
       image ? `url(${JSON.stringify(image)})` : 'none',
     )
@@ -394,10 +451,21 @@ body {
   const applyHideRelated = enabled => {
     if (enabled) {
       if (!hideRelatedStyleEl) {
+        const parent = document.head || document.documentElement
+        if (!parent) {
+          const observer = new MutationObserver(() => {
+            if (document.head || document.documentElement) {
+              observer.disconnect()
+              applyHideRelated(enabled)
+            }
+          })
+          observer.observe(document, { childList: true, subtree: true })
+          return
+        }
         hideRelatedStyleEl = document.createElement('style')
         hideRelatedStyleEl.id = 'soh-hide-related'
         hideRelatedStyleEl.textContent = HIDE_RELATED_CSS
-        ;(document.head || document.documentElement).appendChild(hideRelatedStyleEl)
+        parent.appendChild(hideRelatedStyleEl)
       }
     } else if (hideRelatedStyleEl) {
       hideRelatedStyleEl.remove()
@@ -842,6 +910,8 @@ body {
       return
     }
 
+    schedulePlatformToggle()
+
     if (isHomePage()) {
       GM_registerMenuCommand('设置背景颜色（默认 #000000）', () => {
         const next = window.prompt('背景颜色（CSS 颜色值）', getBgColor())
@@ -942,10 +1012,12 @@ body {
   // 启动
   // ---------------------------------------------------------------------------
 
-  if (isHomePage()) {
-    initHome()
-  } else if (isVideoPage()) {
-    initVideoPage()
+  if (isPlatformEnabled()) {
+    if (isHomePage()) {
+      initHome()
+    } else if (isVideoPage()) {
+      initVideoPage()
+    }
   }
 
   registerMenus()

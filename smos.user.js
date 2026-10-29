@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · All Platforms
 // @namespace    https://github.com/mintonight/smos
-// @version      1.0.0
+// @version      1.1.3
 // @description  SMOS：Bilibili、抖音、知乎和小红书仅搜索首页
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -16,12 +16,9 @@
 // @match        *://www.bilibili.com/medialist/play/*
 // @match        *://www.bilibili.com/cheese/*
 // @match        *://www.bilibili.com/festival/*
-// @match        *://www.douyin.com/
-// @match        *://www.douyin.com/jingxuan*
-// @match        *://www.zhihu.com/
-// @match        *://www.zhihu.com/explore
-// @match        *://www.xiaohongshu.com/
-// @match        *://www.xiaohongshu.com/explore
+// @match        *://www.douyin.com/*
+// @match        *://www.zhihu.com/*
+// @match        *://www.xiaohongshu.com/*
 // @run-at       document-start
 // @grant        GM_addStyle
 // @grant        GM_getValue
@@ -32,6 +29,52 @@
 /* SMOS Bilibili */
 ;(() => {
   'use strict'
+
+  const PLATFORM_KEY = 'smos.enabled.bilibili'
+  const isPlatformEnabled = () => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(PLATFORM_KEY, true) !== false : true
+    } catch {
+      return true
+    }
+  }
+  const setPlatformEnabled = enabled => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(PLATFORM_KEY, enabled)
+      }
+    } catch {
+      // ignore
+    }
+  }
+  const togglePlatform = () => {
+    const next = !isPlatformEnabled()
+    if (!next && !window.confirm('关闭 SMOS · Bilibili 后，本平台功能会停用。确定关闭吗？')) {
+      return
+    }
+    setPlatformEnabled(next)
+    setTimeout(() => location.reload(), 50)
+  }
+  const registerPlatformToggle = () => {
+    try {
+      if (typeof GM_registerMenuCommand === 'function') {
+        GM_registerMenuCommand(
+          isPlatformEnabled() ? 'SMOS · Bilibili：已开启（点击关闭）' : 'SMOS · Bilibili：已关闭（点击开启）',
+          togglePlatform,
+        )
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const schedulePlatformToggle = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerPlatformToggle, { once: true })
+    } else {
+      registerPlatformToggle()
+    }
+  }
 
   const STORAGE = {
     bgColor: 'searchOnlyHome.bgColor',
@@ -236,10 +279,21 @@ body {
 `
 
   const applyBackgroundVars = () => {
+    const root = document.documentElement
+    if (!root) {
+      const observer = new MutationObserver(() => {
+        if (document.documentElement) {
+          observer.disconnect()
+          applyBackgroundVars()
+        }
+      })
+      observer.observe(document, { childList: true, subtree: true })
+      return
+    }
     const color = getBgColor()
     const image = getBgImage()
-    document.documentElement.style.setProperty('--soh-bg-color', color)
-    document.documentElement.style.setProperty(
+    root.style.setProperty('--soh-bg-color', color)
+    root.style.setProperty(
       '--soh-bg-image',
       image ? `url(${JSON.stringify(image)})` : 'none',
     )
@@ -398,10 +452,21 @@ body {
   const applyHideRelated = enabled => {
     if (enabled) {
       if (!hideRelatedStyleEl) {
+        const parent = document.head || document.documentElement
+        if (!parent) {
+          const observer = new MutationObserver(() => {
+            if (document.head || document.documentElement) {
+              observer.disconnect()
+              applyHideRelated(enabled)
+            }
+          })
+          observer.observe(document, { childList: true, subtree: true })
+          return
+        }
         hideRelatedStyleEl = document.createElement('style')
         hideRelatedStyleEl.id = 'soh-hide-related'
         hideRelatedStyleEl.textContent = HIDE_RELATED_CSS
-        ;(document.head || document.documentElement).appendChild(hideRelatedStyleEl)
+        parent.appendChild(hideRelatedStyleEl)
       }
     } else if (hideRelatedStyleEl) {
       hideRelatedStyleEl.remove()
@@ -846,6 +911,8 @@ body {
       return
     }
 
+    schedulePlatformToggle()
+
     if (isHomePage()) {
       GM_registerMenuCommand('设置背景颜色（默认 #000000）', () => {
         const next = window.prompt('背景颜色（CSS 颜色值）', getBgColor())
@@ -946,10 +1013,12 @@ body {
   // 启动
   // ---------------------------------------------------------------------------
 
-  if (isHomePage()) {
-    initHome()
-  } else if (isVideoPage()) {
-    initVideoPage()
+  if (isPlatformEnabled()) {
+    if (isHomePage()) {
+      initHome()
+    } else if (isVideoPage()) {
+      initVideoPage()
+    }
   }
 
   registerMenus()
@@ -960,17 +1029,70 @@ body {
 ;(() => {
   'use strict'
 
-  if (location.hostname !== 'www.douyin.com') {
+  const PLATFORM_KEY = 'smos.enabled.douyin'
+  const isPlatformEnabled = () => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(PLATFORM_KEY, true) !== false : true
+    } catch {
+      return true
+    }
+  }
+  const setPlatformEnabled = enabled => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(PLATFORM_KEY, enabled)
+      }
+    } catch {
+      // ignore
+    }
+  }
+  const togglePlatform = () => {
+    const next = !isPlatformEnabled()
+    if (!next && !window.confirm('关闭 SMOS · 抖音 后，搜索界面和自动静音会停用。确定关闭吗？')) {
+      return
+    }
+    setPlatformEnabled(next)
+    setTimeout(() => location.reload(), 50)
+  }
+  const registerPlatformToggle = () => {
+    try {
+      if (typeof GM_registerMenuCommand === 'function') {
+        GM_registerMenuCommand(
+          isPlatformEnabled() ? 'SMOS · 抖音：已开启（点击关闭）' : 'SMOS · 抖音：已关闭（点击开启）',
+          togglePlatform,
+        )
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const schedulePlatformToggle = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerPlatformToggle, { once: true })
+    } else {
+      registerPlatformToggle()
+    }
+  }
+
+  schedulePlatformToggle()
+
+  if (!isPlatformEnabled()) {
     return
   }
 
-  const isJingxuan = location.pathname === '/jingxuan'
-  const isRecommendHome =
-    location.pathname === '/' && new URLSearchParams(location.search).has('recommend')
-
-  if (!isJingxuan && !isRecommendHome) {
-    return
+  const isTargetPage = () => {
+    if (location.hostname !== 'www.douyin.com') {
+      return false
+    }
+    const path = location.pathname.replace(/\/+$/, '') || '/'
+    const isJingxuan = path === '/jingxuan' || path.startsWith('/jingxuan/')
+    const isRecommendHome =
+      path === '/' && new URLSearchParams(location.search).has('recommend')
+    return isJingxuan || isRecommendHome
   }
+
+  let styleEl = null
 
   const DEFAULTS = {
     bgColor: '#0f0f12',
@@ -981,19 +1103,43 @@ body {
   const getBgImage = () => (GM_getValue('douyinstudy.bgImage', DEFAULTS.bgImage) || '').trim()
 
   const addStyle = css => {
-    if (typeof GM_addStyle === 'function') {
-      GM_addStyle(css)
+    const create = parent => {
+      styleEl = document.createElement('style')
+      styleEl.textContent = css
+      styleEl.disabled = !isTargetPage()
+      parent.appendChild(styleEl)
+    }
+    const parent = document.head || document.documentElement
+    if (parent) {
+      create(parent)
       return
     }
-    const style = document.createElement('style')
-    style.textContent = css
-    ;(document.head || document.documentElement).appendChild(style)
+    const observer = new MutationObserver(() => {
+      const nextParent = document.head || document.documentElement
+      if (!nextParent) {
+        return
+      }
+      create(nextParent)
+      observer.disconnect()
+    })
+    observer.observe(document, { childList: true, subtree: true })
   }
 
   const applyBackground = () => {
+    const root = document.documentElement
+    if (!root) {
+      const observer = new MutationObserver(() => {
+        if (document.documentElement) {
+          observer.disconnect()
+          applyBackground()
+        }
+      })
+      observer.observe(document, { childList: true, subtree: true })
+      return
+    }
     const image = getBgImage()
-    document.documentElement.style.setProperty('--dys-bg-color', getBgColor())
-    document.documentElement.style.setProperty(
+    root.style.setProperty('--dys-bg-color', getBgColor())
+    root.style.setProperty(
       '--dys-bg-image',
       image ? `url(${JSON.stringify(image)})` : 'none',
     )
@@ -1122,17 +1268,52 @@ audio {
     root.querySelectorAll?.('video, audio').forEach(stopMedia)
   }
 
+  let mediaBlockingActive = true
+
+  const muteMedia = media => {
+    if (!media.muted) {
+      media.muted = true
+    }
+  }
+
+  const ensureMuted = () => {
+    if (!mediaBlockingActive) {
+      return
+    }
+    document.querySelectorAll('video, audio').forEach(muteMedia)
+  }
+
   const preventPlayback = event => {
+    if (!mediaBlockingActive) {
+      return
+    }
     if (event.target instanceof HTMLMediaElement) {
       stopMedia(event.target)
     }
   }
 
+  const preventSound = event => {
+    if (!mediaBlockingActive) {
+      return
+    }
+    if (event.target instanceof HTMLMediaElement) {
+      muteMedia(event.target)
+    }
+  }
+
   const watchMedia = () => {
-    blockMedia(document)
+    if (mediaBlockingActive) {
+      blockMedia(document)
+    }
     document.addEventListener('play', preventPlayback, true)
+    document.addEventListener('volumechange', preventSound, true)
+    document.addEventListener('loadedmetadata', preventSound, true)
+    document.addEventListener('canplay', preventSound, true)
 
     const observer = new MutationObserver(records => {
+      if (!mediaBlockingActive) {
+        return
+      }
       for (const record of records) {
         if (record.type === 'attributes') {
           blockMedia(record.target)
@@ -1141,7 +1322,7 @@ audio {
         record.addedNodes.forEach(blockMedia)
       }
     })
-    observer.observe(document.documentElement, {
+    observer.observe(document, {
       childList: true,
       subtree: true,
       attributes: true,
@@ -1189,19 +1370,58 @@ audio {
     return true
   }
 
+  const deactivate = () => {
+    mediaBlockingActive = false
+    document.getElementById('dys-root')?.remove()
+    if (styleEl) {
+      styleEl.disabled = true
+    }
+  }
+
+  const sync = () => {
+    if (isTargetPage()) {
+      if (!mediaBlockingActive) {
+        mediaBlockingActive = true
+        blockMedia(document)
+      }
+      if (styleEl) {
+        styleEl.disabled = false
+      }
+      mount()
+      ensureMuted()
+    } else {
+      deactivate()
+    }
+  }
+
   const init = () => {
     addStyle(CSS)
     applyBackground()
 
-    if (mount()) {
-      return
-    }
-    const observer = new MutationObserver(() => {
-      if (mount()) {
-        observer.disconnect()
+    const start = () => {
+      sync()
+      if (document.documentElement) {
+        new MutationObserver(sync).observe(document.documentElement, { childList: true, subtree: true })
       }
-    })
-    observer.observe(document.documentElement, { childList: true, subtree: true })
+      const wrapHistory = method => {
+        const original = history[method]
+        history[method] = function (...args) {
+          const result = original.apply(this, args)
+          sync()
+          return result
+        }
+      }
+      wrapHistory('pushState')
+      wrapHistory('replaceState')
+      window.addEventListener('popstate', sync)
+      setInterval(sync, 1200)
+    }
+
+    if (document.body) {
+      start()
+    } else {
+      document.addEventListener('DOMContentLoaded', start, { once: true })
+    }
   }
 
   const registerMenus = () => {
@@ -1248,12 +1468,93 @@ audio {
 ;(() => {
   'use strict'
 
-  if (location.hostname !== 'www.zhihu.com' || (location.pathname !== '/' && location.pathname !== '/explore')) {
+  const PLATFORM_KEY = 'smos.enabled.zhihu'
+  const PLATFORM_TAG = 'zhihu'
+  const isPlatformEnabled = () => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(PLATFORM_KEY, true) !== false : true
+    } catch {
+      return true
+    }
+  }
+  const setPlatformEnabled = enabled => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(PLATFORM_KEY, enabled)
+      }
+    } catch {
+      // ignore
+    }
+  }
+  const togglePlatform = () => {
+    const next = !isPlatformEnabled()
+    if (!next && !window.confirm('关闭 SMOS · 知乎 后，搜索界面会消失。确定关闭吗？')) {
+      return
+    }
+    setPlatformEnabled(next)
+    setTimeout(() => location.reload(), 50)
+  }
+  const registerPlatformToggle = () => {
+    try {
+      if (typeof GM_registerMenuCommand === 'function') {
+        GM_registerMenuCommand(
+          isPlatformEnabled() ? 'SMOS · 知乎：已开启（点击关闭）' : 'SMOS · 知乎：已关闭（点击开启）',
+          togglePlatform,
+        )
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const schedulePlatformToggle = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerPlatformToggle, { once: true })
+    } else {
+      registerPlatformToggle()
+    }
+  }
+
+  schedulePlatformToggle()
+
+  if (!isPlatformEnabled()) {
     return
   }
 
-  const style = document.createElement('style')
-  style.textContent = `
+  const isTargetPage = () => {
+    const path = location.pathname.replace(/\/+$/, '') || '/'
+    return (
+      location.hostname === 'www.zhihu.com' &&
+      (path === '/' || path === '/explore' || path === '/hot')
+    )
+  }
+
+  let styleEl = null
+
+  const addStyle = css => {
+    const create = parent => {
+      styleEl = document.createElement('style')
+      styleEl.textContent = css
+      styleEl.disabled = !isTargetPage()
+      parent.appendChild(styleEl)
+    }
+    const parent = document.head || document.documentElement
+    if (parent) {
+      create(parent)
+      return
+    }
+    const observer = new MutationObserver(() => {
+      const nextParent = document.head || document.documentElement
+      if (!nextParent) {
+        return
+      }
+      create(nextParent)
+      observer.disconnect()
+    })
+    observer.observe(document, { childList: true, subtree: true })
+  }
+
+  addStyle(`
 html,
 body {
   height: 100% !important;
@@ -1323,8 +1624,7 @@ main[role="main"] {
     inset: 56px 0 0;
   }
 }
-`
-  document.documentElement.appendChild(style)
+`)
 
   const mount = () => {
     if (!document.body || document.getElementById('smos-root')) {
@@ -1333,6 +1633,7 @@ main[role="main"] {
 
     const root = document.createElement('main')
     root.id = 'smos-root'
+    window.__smosMountedPlatform = PLATFORM_TAG
     root.innerHTML = `
       <form id="smos-form" role="search">
         <input id="smos-input" type="search" required autocomplete="off" aria-label="搜索知乎" placeholder="搜索知乎">
@@ -1351,11 +1652,44 @@ main[role="main"] {
     input.focus({ preventScroll: true })
   }
 
-  const start = () => {
-    mount()
-    if (document.documentElement) {
-      new MutationObserver(mount).observe(document.documentElement, { childList: true, subtree: true })
+  const deactivate = () => {
+    if (window.__smosMountedPlatform === PLATFORM_TAG) {
+      document.getElementById('smos-root')?.remove()
+      window.__smosMountedPlatform = null
     }
+    if (styleEl) {
+      styleEl.disabled = true
+    }
+  }
+
+  const sync = () => {
+    if (isTargetPage()) {
+      if (styleEl) {
+        styleEl.disabled = false
+      }
+      mount()
+    } else {
+      deactivate()
+    }
+  }
+
+  const start = () => {
+    sync()
+    if (document.documentElement) {
+      new MutationObserver(sync).observe(document.documentElement, { childList: true, subtree: true })
+    }
+    const wrapHistory = method => {
+      const original = history[method]
+      history[method] = function (...args) {
+        const result = original.apply(this, args)
+        sync()
+        return result
+      }
+    }
+    wrapHistory('pushState')
+    wrapHistory('replaceState')
+    window.addEventListener('popstate', sync)
+    setInterval(sync, 1200)
   }
 
   if (document.body) {
@@ -1370,12 +1704,92 @@ main[role="main"] {
 ;(() => {
   'use strict'
 
-  if (location.hostname !== 'www.xiaohongshu.com' || (location.pathname !== '/' && location.pathname !== '/explore')) {
+  const PLATFORM_KEY = 'smos.enabled.xiaohongshu'
+  const PLATFORM_TAG = 'xiaohongshu'
+  const isPlatformEnabled = () => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(PLATFORM_KEY, true) !== false : true
+    } catch {
+      return true
+    }
+  }
+  const setPlatformEnabled = enabled => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(PLATFORM_KEY, enabled)
+      }
+    } catch {
+      // ignore
+    }
+  }
+  const togglePlatform = () => {
+    const next = !isPlatformEnabled()
+    if (!next && !window.confirm('关闭 SMOS · 小红书 后，搜索界面会消失。确定关闭吗？')) {
+      return
+    }
+    setPlatformEnabled(next)
+    setTimeout(() => location.reload(), 50)
+  }
+  const registerPlatformToggle = () => {
+    try {
+      if (typeof GM_registerMenuCommand === 'function') {
+        GM_registerMenuCommand(
+          isPlatformEnabled() ? 'SMOS · 小红书：已开启（点击关闭）' : 'SMOS · 小红书：已关闭（点击开启）',
+          togglePlatform,
+        )
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const schedulePlatformToggle = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerPlatformToggle, { once: true })
+    } else {
+      registerPlatformToggle()
+    }
+  }
+
+  schedulePlatformToggle()
+
+  if (!isPlatformEnabled()) {
     return
   }
 
-  const style = document.createElement('style')
-  style.textContent = `
+  const isTargetPage = () => {
+    const path = location.pathname.replace(/\/+$/, '') || '/'
+    return (
+      location.hostname === 'www.xiaohongshu.com' && (path === '/' || path === '/explore')
+    )
+  }
+
+  let styleEl = null
+
+  const addStyle = css => {
+    const create = parent => {
+      styleEl = document.createElement('style')
+      styleEl.textContent = css
+      styleEl.disabled = !isTargetPage()
+      parent.appendChild(styleEl)
+    }
+    const parent = document.head || document.documentElement
+    if (parent) {
+      create(parent)
+      return
+    }
+    const observer = new MutationObserver(() => {
+      const nextParent = document.head || document.documentElement
+      if (!nextParent) {
+        return
+      }
+      create(nextParent)
+      observer.disconnect()
+    })
+    observer.observe(document, { childList: true, subtree: true })
+  }
+
+  addStyle(`
 html,
 body {
   height: 100% !important;
@@ -1391,7 +1805,7 @@ body {
 
 #smos-root {
   position: fixed;
-  inset: 72px 0 0 239px;
+  inset: var(--smos-top, 178px) 0 0 var(--smos-left, 164px);
   z-index: 5;
   display: grid;
   place-items: center;
@@ -1445,16 +1859,34 @@ body {
     left: 0;
   }
 }
-`
-  document.documentElement.appendChild(style)
+`)
+
+  const updateFrame = () => {
+    const searchArea = document.querySelector('.search-area')
+    const sideBar = document.querySelector('.side-bar')
+    const searchRect = searchArea?.getBoundingClientRect()
+    const sideRect = sideBar?.getBoundingClientRect()
+    const top = searchRect && searchRect.height > 0 ? Math.ceil(searchRect.bottom) : 178
+    const left = sideRect && sideRect.width > 0 ? Math.ceil(sideRect.right) : 0
+    document.documentElement.style.setProperty('--smos-top', `${Math.max(0, top)}px`)
+    document.documentElement.style.setProperty('--smos-left', `${Math.max(0, left)}px`)
+  }
+
+  let resizeBound = false
 
   const mount = () => {
     if (!document.body || document.getElementById('smos-root')) {
       return Boolean(document.body)
     }
+    if (!resizeBound) {
+      resizeBound = true
+      window.addEventListener('resize', updateFrame)
+    }
+    updateFrame()
 
     const root = document.createElement('main')
     root.id = 'smos-root'
+    window.__smosMountedPlatform = PLATFORM_TAG
     root.innerHTML = `
       <form id="smos-form" role="search">
         <input id="smos-input" type="search" required autocomplete="off" aria-label="搜索小红书" placeholder="搜索小红书">
@@ -1473,11 +1905,44 @@ body {
     input.focus({ preventScroll: true })
   }
 
-  const start = () => {
-    mount()
-    if (document.documentElement) {
-      new MutationObserver(mount).observe(document.documentElement, { childList: true, subtree: true })
+  const deactivate = () => {
+    if (window.__smosMountedPlatform === PLATFORM_TAG) {
+      document.getElementById('smos-root')?.remove()
+      window.__smosMountedPlatform = null
     }
+    if (styleEl) {
+      styleEl.disabled = true
+    }
+  }
+
+  const sync = () => {
+    if (isTargetPage()) {
+      if (styleEl) {
+        styleEl.disabled = false
+      }
+      mount()
+    } else {
+      deactivate()
+    }
+  }
+
+  const start = () => {
+    sync()
+    if (document.documentElement) {
+      new MutationObserver(sync).observe(document.documentElement, { childList: true, subtree: true })
+    }
+    const wrapHistory = method => {
+      const original = history[method]
+      history[method] = function (...args) {
+        const result = original.apply(this, args)
+        sync()
+        return result
+      }
+    }
+    wrapHistory('pushState')
+    wrapHistory('replaceState')
+    window.addEventListener('popstate', sync)
+    setInterval(sync, 1200)
   }
 
   if (document.body) {

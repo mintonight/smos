@@ -1,30 +1,112 @@
 // ==UserScript==
 // @name         SMOS · Zhihu
 // @namespace    https://github.com/mintonight/smos
-// @version      1.0.0
+// @version      1.1.3
 // @description  SMOS Zhihu：知乎首页和发现页仅保留导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
 // @supportURL   https://github.com/mintonight/smos/issues
 // @downloadURL  https://raw.githubusercontent.com/mintonight/smos/main/smos-zhihu/smos-zhihu.user.js
 // @updateURL    https://raw.githubusercontent.com/mintonight/smos/main/smos-zhihu/smos-zhihu.user.js
-// @match        *://www.zhihu.com/
-// @match        *://www.zhihu.com/explore
+// @match        *://www.zhihu.com/*
 // @icon         https://www.zhihu.com/favicon.ico
 // @run-at       document-start
-// @grant        none
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_registerMenuCommand
 // @license      MIT
 // ==/UserScript==
 
 ;(() => {
   'use strict'
 
-  if (location.hostname !== 'www.zhihu.com' || (location.pathname !== '/' && location.pathname !== '/explore')) {
+  const PLATFORM_KEY = 'smos.enabled.zhihu'
+  const PLATFORM_TAG = 'zhihu'
+  const isPlatformEnabled = () => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(PLATFORM_KEY, true) !== false : true
+    } catch {
+      return true
+    }
+  }
+  const setPlatformEnabled = enabled => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(PLATFORM_KEY, enabled)
+      }
+    } catch {
+      // ignore
+    }
+  }
+  const togglePlatform = () => {
+    const next = !isPlatformEnabled()
+    if (!next && !window.confirm('关闭 SMOS · 知乎 后，搜索界面会消失。确定关闭吗？')) {
+      return
+    }
+    setPlatformEnabled(next)
+    setTimeout(() => location.reload(), 50)
+  }
+  const registerPlatformToggle = () => {
+    try {
+      if (typeof GM_registerMenuCommand === 'function') {
+        GM_registerMenuCommand(
+          isPlatformEnabled() ? 'SMOS · 知乎：已开启（点击关闭）' : 'SMOS · 知乎：已关闭（点击开启）',
+          togglePlatform,
+        )
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const schedulePlatformToggle = () => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', registerPlatformToggle, { once: true })
+    } else {
+      registerPlatformToggle()
+    }
+  }
+
+  schedulePlatformToggle()
+
+  if (!isPlatformEnabled()) {
     return
   }
 
-  const style = document.createElement('style')
-  style.textContent = `
+  const isTargetPage = () => {
+    const path = location.pathname.replace(/\/+$/, '') || '/'
+    return (
+      location.hostname === 'www.zhihu.com' &&
+      (path === '/' || path === '/explore' || path === '/hot')
+    )
+  }
+
+  let styleEl = null
+
+  const addStyle = css => {
+    const create = parent => {
+      styleEl = document.createElement('style')
+      styleEl.textContent = css
+      styleEl.disabled = !isTargetPage()
+      parent.appendChild(styleEl)
+    }
+    const parent = document.head || document.documentElement
+    if (parent) {
+      create(parent)
+      return
+    }
+    const observer = new MutationObserver(() => {
+      const nextParent = document.head || document.documentElement
+      if (!nextParent) {
+        return
+      }
+      create(nextParent)
+      observer.disconnect()
+    })
+    observer.observe(document, { childList: true, subtree: true })
+  }
+
+  addStyle(`
 html,
 body {
   height: 100% !important;
@@ -94,8 +176,7 @@ main[role="main"] {
     inset: 56px 0 0;
   }
 }
-`
-  document.documentElement.appendChild(style)
+`)
 
   const mount = () => {
     if (!document.body || document.getElementById('smos-root')) {
@@ -104,6 +185,7 @@ main[role="main"] {
 
     const root = document.createElement('main')
     root.id = 'smos-root'
+    window.__smosMountedPlatform = PLATFORM_TAG
     root.innerHTML = `
       <form id="smos-form" role="search">
         <input id="smos-input" type="search" required autocomplete="off" aria-label="搜索知乎" placeholder="搜索知乎">
@@ -122,11 +204,44 @@ main[role="main"] {
     input.focus({ preventScroll: true })
   }
 
-  const start = () => {
-    mount()
-    if (document.documentElement) {
-      new MutationObserver(mount).observe(document.documentElement, { childList: true, subtree: true })
+  const deactivate = () => {
+    if (window.__smosMountedPlatform === PLATFORM_TAG) {
+      document.getElementById('smos-root')?.remove()
+      window.__smosMountedPlatform = null
     }
+    if (styleEl) {
+      styleEl.disabled = true
+    }
+  }
+
+  const sync = () => {
+    if (isTargetPage()) {
+      if (styleEl) {
+        styleEl.disabled = false
+      }
+      mount()
+    } else {
+      deactivate()
+    }
+  }
+
+  const start = () => {
+    sync()
+    if (document.documentElement) {
+      new MutationObserver(sync).observe(document.documentElement, { childList: true, subtree: true })
+    }
+    const wrapHistory = method => {
+      const original = history[method]
+      history[method] = function (...args) {
+        const result = original.apply(this, args)
+        sync()
+        return result
+      }
+    }
+    wrapHistory('pushState')
+    wrapHistory('replaceState')
+    window.addEventListener('popstate', sync)
+    setInterval(sync, 1200)
   }
 
   if (document.body) {

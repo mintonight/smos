@@ -17,16 +17,24 @@ https://raw.githubusercontent.com/mintonight/smos/main/smos-zhihu/smos-zhihu.use
 
 https://cdn.jsdelivr.net/gh/mintonight/smos/smos-zhihu/smos-zhihu.user.js
 
-3. 打开 https://www.zhihu.com/ 或 https://www.zhihu.com/explore。
+3. 打开 https://www.zhihu.com/、https://www.zhihu.com/explore 或 https://www.zhihu.com/hot。
 
 ## 功能
 
-- 支持知乎根首页和发现页。
+- 支持知乎根首页、发现页和热榜页。
 - 保留知乎原生顶栏与导航。
-- 隐藏推荐内容和发现内容。
+- 隐藏推荐内容、发现内容和热榜内容。
 - 在内容区显示中央搜索框。
 - 搜索后进入知乎原生内容搜索结果页。
 - 不处理问题详情页和搜索结果页。
+
+## 设置
+
+油猴菜单 → **SMOS · Zhihu**：
+
+| 设置 | 说明 |
+|------|------|
+| SMOS · 知乎：已开启（点击关闭） | 开关本平台脚本，关闭前会确认 |
 
 ## 文件
 

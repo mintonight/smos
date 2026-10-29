@@ -15,7 +15,7 @@ SMOS（Social Media Only Search）是一组把社交媒体首页变成“仅搜�
 | --- | --- | --- |
 | Bilibili | `/`、视频/番剧等内容页 | [`smos-bilibili`](./smos-bilibili) |
 | Douyin | `/jingxuan`、`/?recommend=*` | [`smos-douyin`](./smos-douyin) |
-| Zhihu | `/`、`/explore` | [`smos-zhihu`](./smos-zhihu) |
+| Zhihu | `/`、`/explore`、`/hot` | [`smos-zhihu`](./smos-zhihu) |
 | Xiaohongshu | `/`、`/explore` | [`smos-xiaohongshu`](./smos-xiaohongshu) |
 
 ## 安装单个平台（可选）
@@ -33,10 +33,22 @@ SMOS（Social Media Only Search）是一组把社交媒体首页变成“仅搜�
 - 隐藏首页推荐流，只显示可聚焦的中央搜索框。
 - 使用平台原生搜索结果页，不处理详情页。
 - Bilibili 保留播放器模式、背景设置等原有功能。
+- 油猴菜单中可分别开关 Bilibili、抖音、知乎和小红书脚本。
+- 在平台内进入专栏、关注、通知等非目标模块时自动移除搜索框，返回首页、热榜、精选等页面时自动恢复。
 
 ## 目录
 
 每个平台目录都包含独立的油猴脚本、README 和 MIT License，不引入共享依赖。
+
+## 开发校验
+
+修改脚本后运行：
+
+```bash
+node tools/verify-userscripts.mjs
+```
+
+该脚本会检查各脚本语法、UserScript 元数据，以及 `smos.user.js` 与四个分平台脚本的代码段是否同步。
 
 ## License
 

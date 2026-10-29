@@ -28,6 +28,14 @@ https://cdn.jsdelivr.net/gh/mintonight/smos/smos-xiaohongshu/smos-xiaohongshu.us
 - 搜索后进入小红书原生搜索结果页。
 - 不处理笔记详情页和搜索结果页。
 
+## 设置
+
+油猴菜单 → **SMOS · Xiaohongshu**：
+
+| 设置 | 说明 |
+|------|------|
+| SMOS · 小红书：已开启（点击关闭） | 开关本平台脚本，关闭前会确认 |
+
 ## 文件
 
 - `smos-xiaohongshu.user.js` — 油猴脚本。
