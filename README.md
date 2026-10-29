@@ -46,7 +46,7 @@ SMOS（Social Media Only Search）把社交媒体首页变成“仅搜索”界�
 
 ## 浏览器扩展
 
-仓库中的 [`extension/`](./extension) 是 Manifest V3 扩展版本，可在 Chrome/Edge 中通过“加载已解压的扩展程序”安装。GitHub Actions 会在版本号变化时自动构建 CRX/ZIP、打 `v*` tag 并发布 GitHub Release。
+仓库中的 [`extension/`](./extension) 是 Manifest V3 扩展版本，可在 Chrome/Edge 中通过“加载已解压的扩展程序”安装。每次 push / PR 都会跑校验（`verify.yml`）；推送 `v*` tag（需与 `manifest.json` 版本一致）时自动构建 CRX/ZIP 并发布 GitHub Release（`release.yml`）。
 
 - 安装与开发说明：[`extension/README.md`](./extension/README.md)
 - 发布产物：GitHub Releases 中的 `.crx` 和 `.zip`

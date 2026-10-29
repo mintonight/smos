@@ -63,7 +63,11 @@ for (const file of requiredFiles) {
 
 for (const script of manifest.content_scripts || []) {
   check(script.run_at === 'document_start', `Content script should run at document_start: ${script.js?.join(', ')}`)
-  check(script.js?.[0] === 'content/00-core.js', `Content script must load 00-core.js first: ${script.js?.join(', ')}`)
+  if (script.world === 'MAIN') {
+    check(script.js?.length === 1 && script.js[0] === 'content/05-route-hook.js', `MAIN-world entry should only load content/05-route-hook.js: ${script.js?.join(', ')}`)
+  } else {
+    check(script.js?.[0] === 'content/00-core.js', `Content script must load 00-core.js first: ${script.js?.join(', ')}`)
+  }
   for (const file of script.js || []) {
     if (await exists(file)) {
       await checkSyntax(file)
@@ -85,6 +89,17 @@ for (const page of ['popup/popup.html', 'options/options.html']) {
     if (!target.startsWith('http') && !target.startsWith('#')) {
       const relative = path.posix.join(path.posix.dirname(page), target)
       check(await exists(relative), `${page} references missing file: ${target}`)
+    }
+  }
+}
+
+{
+  const isolatedMatches = new Set((manifest.content_scripts || []).filter(s => s.world !== 'MAIN').flatMap(s => s.matches || []))
+  const hook = (manifest.content_scripts || []).find(s => s.world === 'MAIN')
+  check(Boolean(hook), 'manifest is missing the MAIN-world route hook (content/05-route-hook.js)')
+  if (hook) {
+    for (const match of isolatedMatches) {
+      check(hook.matches.includes(match), `route hook does not cover ${match}`)
     }
   }
 }

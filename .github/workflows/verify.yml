@@ -1,0 +1,33 @@
+name: Verify
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags are needed by verify-versions
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generated content scripts are up to date
+        run: node tools/build-extension.mjs --check
+
+      - name: Verify userscripts
+        run: node tools/verify-userscripts.mjs
+
+      - name: Verify extension
+        run: node tools/verify-extension.mjs
+
+      - name: Verify versions
+        run: node tools/verify-versions.mjs

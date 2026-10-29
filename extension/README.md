@@ -74,14 +74,14 @@ node tools/pack-crx.mjs
 
 ## 自动发布
 
-`.github/workflows/release.yml` 在 push 到 `main` 时执行：
+- `.github/workflows/verify.yml`：每次 push 和 pull request 都运行，不需要 secret，检查生成的 content scripts 是否最新、油猴脚本、扩展结构和版本号（`tools/verify-versions.mjs`）。
+- `.github/workflows/release.yml`：只在推送 `v*` tag 或手动触发时运行：
+  1. 未配置 `CRX_PRIVATE_KEY` 时直接报错退出；
+  2. 校验 tag 与 `manifest.json` 版本一致（手动触发时要求版本高于最新 tag）；
+  3. 打包 CRX/ZIP 并生成 `SHA256SUMS.txt`；
+  4. 如果 `v<manifest.version>` 还没有 Release，则创建 GitHub Release。
 
-1. 重新生成并校验扩展内容脚本；
-2. 从 GitHub Actions secret `CRX_PRIVATE_KEY` 读取私钥；
-3. 打包 CRX 和 ZIP；
-4. 如果 `v<manifest.version>` 还没有 Release，则打 tag 并创建 GitHub Release。
-
-发布新版本只需要修改 `extension/manifest.json` 的 `version`，然后 push 到 `main`。仓库需要配置 `CRX_PRIVATE_KEY` secret（值为 `.keys/smos-extension.pem` 的 base64）：
+发版：修改 `extension/manifest.json` 的 `version` 并提交，然后 `git tag v<version> && git push origin v<version>`。仓库需要配置 `CRX_PRIVATE_KEY` secret（值为 `.keys/smos-extension.pem` 的 base64）：
 
 ```bash
 base64 -w0 .keys/smos-extension.pem | gh secret set CRX_PRIVATE_KEY
