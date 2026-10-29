@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · Zhihu
 // @namespace    https://github.com/mintonight/smos
-// @version      1.2.0
+// @version      1.2.1
 // @description  SMOS Zhihu：知乎首页和发现页仅保留导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -9,7 +9,8 @@
 // @downloadURL  https://raw.githubusercontent.com/mintonight/smos/main/smos-zhihu/smos-zhihu.user.js
 // @updateURL    https://raw.githubusercontent.com/mintonight/smos/main/smos-zhihu/smos-zhihu.user.js
 // @match        *://www.zhihu.com/*
-// @icon         https://www.zhihu.com/favicon.ico
+// @icon         https://raw.githubusercontent.com/mintonight/smos/main/extension/icons/icon48.png
+// @icon64       https://raw.githubusercontent.com/mintonight/smos/main/extension/icons/icon128.png
 // @run-at       document-start
 // @grant        unsafeWindow
 // @grant        GM_getValue
