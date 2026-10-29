@@ -1,7 +1,9 @@
 <p align="center">
   <img src="./assets/readme/hero.svg" width="100%" alt="SMOS：把 Bilibili、抖音、知乎、小红书的首页变成仅搜索界面">
 </p>
-# SMOS
+
+# SMOS   
+
 SMOS（Social Media Only Search）把社交媒体首页变成“仅搜索”界面，提供油猴脚本和 Manifest V3 浏览器扩展两种安装方式。
 
 ## 总脚本
