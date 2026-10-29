@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · All Platforms
 // @namespace    https://github.com/mintonight/smos
-// @version      1.1.5
+// @version      1.4.0
 // @description  SMOS：Bilibili、抖音、知乎和小红书仅搜索首页
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -20,6 +20,7 @@
 // @match        *://www.zhihu.com/*
 // @match        *://www.xiaohongshu.com/*
 // @run-at       document-start
+// @grant        unsafeWindow
 // @grant        GM_addStyle
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -29,6 +30,88 @@
 /* SMOS Bilibili */
 ;(() => {
   'use strict'
+
+  // ---------------------------------------------------------------------------
+  // 路由 / DOM 监听（SPA）
+  // 扩展：content/05-route-hook.js 在 MAIN world 钩住 history 并派发 SMOS_ROUTE_EVENT。
+  // 油猴：通过 unsafeWindow 钩住页面自己的 history（沙箱里的 history 包装对页面无效）。
+  // ---------------------------------------------------------------------------
+  const SMOS_ROUTE_EVENT = 'smos:locationchange'
+
+  const hookPageHistory = () => {
+    try {
+      const pageWindow = typeof unsafeWindow !== 'undefined' ? unsafeWindow : null
+      if (!pageWindow || pageWindow.__smosRouteHooked) {
+        return
+      }
+      pageWindow.__smosRouteHooked = true
+      const notify = () => pageWindow.dispatchEvent(new pageWindow.CustomEvent(SMOS_ROUTE_EVENT))
+      for (const method of ['pushState', 'replaceState']) {
+        const original = pageWindow.history[method]
+        pageWindow.history[method] = function (...args) {
+          const result = original.apply(this, args)
+          notify()
+          return result
+        }
+      }
+    } catch {
+      // 拿不到页面 history 时依赖 navigation / popstate / 低频轮询
+    }
+  }
+
+  const watchRoute = callback => {
+    let lastUrl = location.href
+    const check = () => {
+      if (location.href !== lastUrl) {
+        lastUrl = location.href
+        callback()
+      }
+    }
+    hookPageHistory()
+    window.addEventListener(SMOS_ROUTE_EVENT, check)
+    window.addEventListener('popstate', check)
+    window.addEventListener('hashchange', check)
+    try {
+      if (window.navigation && typeof window.navigation.addEventListener === 'function') {
+        window.navigation.addEventListener('navigatesuccess', check)
+      }
+    } catch {
+      // ignore
+    }
+    // 兜底：只比较 URL 字符串，开销可忽略
+    setInterval(check, 3000)
+  }
+
+  const createDomWatcher = callback => {
+    let observer = null
+    let frame = 0
+    const schedule = () => {
+      if (!frame) {
+        frame = requestAnimationFrame(() => {
+          frame = 0
+          callback()
+        })
+      }
+    }
+    return {
+      start() {
+        if (!observer && document.documentElement) {
+          observer = new MutationObserver(schedule)
+          observer.observe(document.documentElement, { childList: true, subtree: true })
+        }
+      },
+      stop() {
+        if (observer) {
+          observer.disconnect()
+          observer = null
+        }
+        if (frame) {
+          cancelAnimationFrame(frame)
+          frame = 0
+        }
+      },
+    }
+  }
 
   const PLATFORM_KEY = 'smos.enabled.bilibili'
   const isPlatformEnabled = () => {
@@ -878,22 +961,7 @@ body {
       }, 500)
     }
 
-    const wrapHistory = method => {
-      const original = history[method]
-      history[method] = function wrapped(...args) {
-        const ret = original.apply(this, args)
-        maybeReapply()
-        return ret
-      }
-    }
-    wrapHistory('pushState')
-    wrapHistory('replaceState')
-    window.addEventListener('popstate', maybeReapply)
-
-    // 部分列表页只改 hash 或内部状态；用轻量轮询兜底
-    setInterval(() => {
-      maybeReapply()
-    }, 1500)
+    watchRoute(maybeReapply)
   }
 
   const initVideoPage = () => {
@@ -1024,10 +1092,91 @@ body {
   registerMenus()
 })()
 
-
 /* SMOS Douyin */
 ;(() => {
   'use strict'
+
+  // ---------------------------------------------------------------------------
+  // 路由 / DOM 监听（SPA）
+  // 扩展：content/05-route-hook.js 在 MAIN world 钩住 history 并派发 SMOS_ROUTE_EVENT。
+  // 油猴：通过 unsafeWindow 钩住页面自己的 history（沙箱里的 history 包装对页面无效）。
+  // ---------------------------------------------------------------------------
+  const SMOS_ROUTE_EVENT = 'smos:locationchange'
+
+  const hookPageHistory = () => {
+    try {
+      const pageWindow = typeof unsafeWindow !== 'undefined' ? unsafeWindow : null
+      if (!pageWindow || pageWindow.__smosRouteHooked) {
+        return
+      }
+      pageWindow.__smosRouteHooked = true
+      const notify = () => pageWindow.dispatchEvent(new pageWindow.CustomEvent(SMOS_ROUTE_EVENT))
+      for (const method of ['pushState', 'replaceState']) {
+        const original = pageWindow.history[method]
+        pageWindow.history[method] = function (...args) {
+          const result = original.apply(this, args)
+          notify()
+          return result
+        }
+      }
+    } catch {
+      // 拿不到页面 history 时依赖 navigation / popstate / 低频轮询
+    }
+  }
+
+  const watchRoute = callback => {
+    let lastUrl = location.href
+    const check = () => {
+      if (location.href !== lastUrl) {
+        lastUrl = location.href
+        callback()
+      }
+    }
+    hookPageHistory()
+    window.addEventListener(SMOS_ROUTE_EVENT, check)
+    window.addEventListener('popstate', check)
+    window.addEventListener('hashchange', check)
+    try {
+      if (window.navigation && typeof window.navigation.addEventListener === 'function') {
+        window.navigation.addEventListener('navigatesuccess', check)
+      }
+    } catch {
+      // ignore
+    }
+    // 兜底：只比较 URL 字符串，开销可忽略
+    setInterval(check, 3000)
+  }
+
+  const createDomWatcher = callback => {
+    let observer = null
+    let frame = 0
+    const schedule = () => {
+      if (!frame) {
+        frame = requestAnimationFrame(() => {
+          frame = 0
+          callback()
+        })
+      }
+    }
+    return {
+      start() {
+        if (!observer && document.documentElement) {
+          observer = new MutationObserver(schedule)
+          observer.observe(document.documentElement, { childList: true, subtree: true })
+        }
+      },
+      stop() {
+        if (observer) {
+          observer.disconnect()
+          observer = null
+        }
+        if (frame) {
+          cancelAnimationFrame(frame)
+          frame = 0
+        }
+      },
+    }
+  }
 
   const PLATFORM_KEY = 'smos.enabled.douyin'
   const isPlatformEnabled = () => {
@@ -1449,22 +1598,17 @@ audio {
     applyBackground()
 
     const start = () => {
-      sync()
-      if (document.documentElement) {
-        new MutationObserver(sync).observe(document.documentElement, { childList: true, subtree: true })
-      }
-      const wrapHistory = method => {
-        const original = history[method]
-        history[method] = function (...args) {
-          const result = original.apply(this, args)
-          sync()
-          return result
+      const domWatcher = createDomWatcher(() => refresh())
+      const refresh = () => {
+        sync()
+        if (isTargetPage()) {
+          domWatcher.start()
+        } else {
+          domWatcher.stop()
         }
       }
-      wrapHistory('pushState')
-      wrapHistory('replaceState')
-      window.addEventListener('popstate', sync)
-      setInterval(sync, 1200)
+      refresh()
+      watchRoute(refresh)
     }
 
     if (document.body) {
@@ -1513,10 +1657,91 @@ audio {
   registerMenus()
 })()
 
-
 /* SMOS Zhihu */
 ;(() => {
   'use strict'
+
+  // ---------------------------------------------------------------------------
+  // 路由 / DOM 监听（SPA）
+  // 扩展：content/05-route-hook.js 在 MAIN world 钩住 history 并派发 SMOS_ROUTE_EVENT。
+  // 油猴：通过 unsafeWindow 钩住页面自己的 history（沙箱里的 history 包装对页面无效）。
+  // ---------------------------------------------------------------------------
+  const SMOS_ROUTE_EVENT = 'smos:locationchange'
+
+  const hookPageHistory = () => {
+    try {
+      const pageWindow = typeof unsafeWindow !== 'undefined' ? unsafeWindow : null
+      if (!pageWindow || pageWindow.__smosRouteHooked) {
+        return
+      }
+      pageWindow.__smosRouteHooked = true
+      const notify = () => pageWindow.dispatchEvent(new pageWindow.CustomEvent(SMOS_ROUTE_EVENT))
+      for (const method of ['pushState', 'replaceState']) {
+        const original = pageWindow.history[method]
+        pageWindow.history[method] = function (...args) {
+          const result = original.apply(this, args)
+          notify()
+          return result
+        }
+      }
+    } catch {
+      // 拿不到页面 history 时依赖 navigation / popstate / 低频轮询
+    }
+  }
+
+  const watchRoute = callback => {
+    let lastUrl = location.href
+    const check = () => {
+      if (location.href !== lastUrl) {
+        lastUrl = location.href
+        callback()
+      }
+    }
+    hookPageHistory()
+    window.addEventListener(SMOS_ROUTE_EVENT, check)
+    window.addEventListener('popstate', check)
+    window.addEventListener('hashchange', check)
+    try {
+      if (window.navigation && typeof window.navigation.addEventListener === 'function') {
+        window.navigation.addEventListener('navigatesuccess', check)
+      }
+    } catch {
+      // ignore
+    }
+    // 兜底：只比较 URL 字符串，开销可忽略
+    setInterval(check, 3000)
+  }
+
+  const createDomWatcher = callback => {
+    let observer = null
+    let frame = 0
+    const schedule = () => {
+      if (!frame) {
+        frame = requestAnimationFrame(() => {
+          frame = 0
+          callback()
+        })
+      }
+    }
+    return {
+      start() {
+        if (!observer && document.documentElement) {
+          observer = new MutationObserver(schedule)
+          observer.observe(document.documentElement, { childList: true, subtree: true })
+        }
+      },
+      stop() {
+        if (observer) {
+          observer.disconnect()
+          observer = null
+        }
+        if (frame) {
+          cancelAnimationFrame(frame)
+          frame = 0
+        }
+      },
+    }
+  }
 
   const PLATFORM_KEY = 'smos.enabled.zhihu'
   const PLATFORM_TAG = 'zhihu'
@@ -1727,22 +1952,17 @@ main[role="main"] {
   }
 
   const start = () => {
-    sync()
-    if (document.documentElement) {
-      new MutationObserver(sync).observe(document.documentElement, { childList: true, subtree: true })
-    }
-    const wrapHistory = method => {
-      const original = history[method]
-      history[method] = function (...args) {
-        const result = original.apply(this, args)
-        sync()
-        return result
+    const domWatcher = createDomWatcher(() => refresh())
+    const refresh = () => {
+      sync()
+      if (isTargetPage()) {
+        domWatcher.start()
+      } else {
+        domWatcher.stop()
       }
     }
-    wrapHistory('pushState')
-    wrapHistory('replaceState')
-    window.addEventListener('popstate', sync)
-    setInterval(sync, 1200)
+    refresh()
+    watchRoute(refresh)
   }
 
   if (document.body) {
@@ -1752,10 +1972,91 @@ main[role="main"] {
   }
 })()
 
-
 /* SMOS Xiaohongshu */
 ;(() => {
   'use strict'
+
+  // ---------------------------------------------------------------------------
+  // 路由 / DOM 监听（SPA）
+  // 扩展：content/05-route-hook.js 在 MAIN world 钩住 history 并派发 SMOS_ROUTE_EVENT。
+  // 油猴：通过 unsafeWindow 钩住页面自己的 history（沙箱里的 history 包装对页面无效）。
+  // ---------------------------------------------------------------------------
+  const SMOS_ROUTE_EVENT = 'smos:locationchange'
+
+  const hookPageHistory = () => {
+    try {
+      const pageWindow = typeof unsafeWindow !== 'undefined' ? unsafeWindow : null
+      if (!pageWindow || pageWindow.__smosRouteHooked) {
+        return
+      }
+      pageWindow.__smosRouteHooked = true
+      const notify = () => pageWindow.dispatchEvent(new pageWindow.CustomEvent(SMOS_ROUTE_EVENT))
+      for (const method of ['pushState', 'replaceState']) {
+        const original = pageWindow.history[method]
+        pageWindow.history[method] = function (...args) {
+          const result = original.apply(this, args)
+          notify()
+          return result
+        }
+      }
+    } catch {
+      // 拿不到页面 history 时依赖 navigation / popstate / 低频轮询
+    }
+  }
+
+  const watchRoute = callback => {
+    let lastUrl = location.href
+    const check = () => {
+      if (location.href !== lastUrl) {
+        lastUrl = location.href
+        callback()
+      }
+    }
+    hookPageHistory()
+    window.addEventListener(SMOS_ROUTE_EVENT, check)
+    window.addEventListener('popstate', check)
+    window.addEventListener('hashchange', check)
+    try {
+      if (window.navigation && typeof window.navigation.addEventListener === 'function') {
+        window.navigation.addEventListener('navigatesuccess', check)
+      }
+    } catch {
+      // ignore
+    }
+    // 兜底：只比较 URL 字符串，开销可忽略
+    setInterval(check, 3000)
+  }
+
+  const createDomWatcher = callback => {
+    let observer = null
+    let frame = 0
+    const schedule = () => {
+      if (!frame) {
+        frame = requestAnimationFrame(() => {
+          frame = 0
+          callback()
+        })
+      }
+    }
+    return {
+      start() {
+        if (!observer && document.documentElement) {
+          observer = new MutationObserver(schedule)
+          observer.observe(document.documentElement, { childList: true, subtree: true })
+        }
+      },
+      stop() {
+        if (observer) {
+          observer.disconnect()
+          observer = null
+        }
+        if (frame) {
+          cancelAnimationFrame(frame)
+          frame = 0
+        }
+      },
+    }
+  }
 
   const PLATFORM_KEY = 'smos.enabled.xiaohongshu'
   const PLATFORM_TAG = 'xiaohongshu'
@@ -2049,22 +2350,17 @@ body {
   }
 
   const start = () => {
-    sync()
-    if (document.documentElement) {
-      new MutationObserver(sync).observe(document.documentElement, { childList: true, subtree: true })
-    }
-    const wrapHistory = method => {
-      const original = history[method]
-      history[method] = function (...args) {
-        const result = original.apply(this, args)
-        sync()
-        return result
+    const domWatcher = createDomWatcher(() => refresh())
+    const refresh = () => {
+      sync()
+      if (isTargetPage()) {
+        domWatcher.start()
+      } else {
+        domWatcher.stop()
       }
     }
-    wrapHistory('pushState')
-    wrapHistory('replaceState')
-    window.addEventListener('popstate', sync)
-    setInterval(sync, 1200)
+    refresh()
+    watchRoute(refresh)
   }
 
   if (document.body) {
@@ -2073,4 +2369,3 @@ body {
     document.addEventListener('DOMContentLoaded', start, { once: true })
   }
 })()
-

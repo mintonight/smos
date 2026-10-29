@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SMOS · 社交媒体仅搜索",
   "short_name": "SMOS",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "把 Bilibili、抖音、知乎、小红书的首页变成仅搜索界面。",
   "permissions": [
     "storage"
@@ -28,6 +28,27 @@
     "128": "icons/icon128.png"
   },
   "content_scripts": [
+    {
+      "matches": [
+        "*://www.bilibili.com/",
+        "*://www.bilibili.com/index.html",
+        "*://www.bilibili.com/video/*",
+        "*://www.bilibili.com/bangumi/play/*",
+        "*://www.bilibili.com/list/*",
+        "*://www.bilibili.com/medialist/play/*",
+        "*://www.bilibili.com/cheese/*",
+        "*://www.bilibili.com/festival/*",
+        "*://www.douyin.com/*",
+        "*://www.zhihu.com/*",
+        "*://www.xiaohongshu.com/*"
+      ],
+      "js": [
+        "content/05-route-hook.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false,
+      "world": "MAIN"
+    },
     {
       "matches": [
         "*://www.bilibili.com/",
