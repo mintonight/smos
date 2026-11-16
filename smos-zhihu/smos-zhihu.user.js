@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · Zhihu
 // @namespace    https://github.com/mintonight/smos
-// @version      1.2.1
+// @version      1.2.2
 // @description  SMOS Zhihu：知乎首页和发现页仅保留导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · Bilibili
 // @namespace    https://github.com/mintonight/smos
-// @version      1.4.1
+// @version      1.4.2
 // @description  SMOS Bilibili：B站仅搜索首页、隐藏相关推荐并默认宽屏
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos

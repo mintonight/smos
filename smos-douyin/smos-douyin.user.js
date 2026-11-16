@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · Douyin
 // @namespace    https://github.com/mintonight/smos
-// @version      1.2.1
+// @version      1.2.2
 // @description  SMOS Douyin：抖音精选页和推荐页仅保留导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
