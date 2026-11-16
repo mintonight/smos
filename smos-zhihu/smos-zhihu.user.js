@@ -73,7 +73,6 @@
     } catch {
       // ignore
     }
-    // 兜底：只比较 URL 字符串，开销可忽略
     setInterval(check, 3000)
   }
 
@@ -303,9 +302,6 @@ main[role="main"] {
   }
 
   const sync = () => {
-    if (typeof applyTheme === 'function') {
-      applyTheme()
-    }
     if (isTargetPage()) {
       if (styleEl) {
         styleEl.disabled = false

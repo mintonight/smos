@@ -74,7 +74,6 @@
     } catch {
       // ignore
     }
-    // 兜底：只比较 URL 字符串，开销可忽略
     setInterval(check, 3000)
   }
 
@@ -179,8 +178,25 @@
     bgImage: '',
   }
 
-  const getBgColor = () => (GM_getValue('douyinstudy.bgColor', DEFAULTS.bgColor) || '').trim()
-  const getBgImage = () => (GM_getValue('douyinstudy.bgImage', DEFAULTS.bgImage) || '').trim()
+  const readSetting = (key, fallback) => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(key, fallback) : fallback
+    } catch {
+      return fallback
+    }
+  }
+  const writeSetting = (key, value) => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(key, value)
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const getBgColor = () => (readSetting('douyinstudy.bgColor', DEFAULTS.bgColor) || '').trim()
+  const getBgImage = () => (readSetting('douyinstudy.bgImage', DEFAULTS.bgImage) || '').trim()
 
   const addStyle = css => {
     const create = parent => {
@@ -358,7 +374,6 @@ audio {
 }
 `
 
-  // 记录被 SMOS 静音的媒体，离开目标页时恢复，避免播放器图标显示有声但实际静音
   const mutedBySmos = new WeakSet()
 
   const stopMedia = media => {
@@ -378,7 +393,6 @@ audio {
     root.querySelectorAll?.('video, audio').forEach(stopMedia)
   }
 
-  // 只在目标页（精选 / 推荐首页）启用；合并脚本在其他站点、抖音视频页等都不能静音
   let mediaBlockingActive = isTargetPage()
 
   const muteMedia = media => {
@@ -577,7 +591,7 @@ audio {
     GM_registerMenuCommand('设置背景颜色', () => {
       const value = prompt('背景颜色（CSS 颜色值）', getBgColor())
       if (value !== null) {
-        GM_setValue('douyinstudy.bgColor', value.trim() || DEFAULTS.bgColor)
+        writeSetting('douyinstudy.bgColor', value.trim() || DEFAULTS.bgColor)
         applyBackground()
       }
     })
@@ -592,13 +606,13 @@ audio {
         alert('仅支持 http(s) 或 data:image/ 链接')
         return
       }
-      GM_setValue('douyinstudy.bgImage', next)
+      writeSetting('douyinstudy.bgImage', next)
       applyBackground()
     })
 
     GM_registerMenuCommand('恢复默认背景', () => {
-      GM_setValue('douyinstudy.bgColor', DEFAULTS.bgColor)
-      GM_setValue('douyinstudy.bgImage', DEFAULTS.bgImage)
+      writeSetting('douyinstudy.bgColor', DEFAULTS.bgColor)
+      writeSetting('douyinstudy.bgImage', DEFAULTS.bgImage)
       applyBackground()
     })
   }

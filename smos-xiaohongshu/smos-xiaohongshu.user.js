@@ -73,7 +73,6 @@
     } catch {
       // ignore
     }
-    // 兜底：只比较 URL 字符串，开销可忽略
     setInterval(check, 3000)
   }
 
@@ -201,17 +200,6 @@
   --smos-text: #222222;
   --smos-muted: #888888;
   --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --smos-page-bg: #141418;
-    --smos-surface: #1f1f24;
-    --smos-border: #33333a;
-    --smos-text: #eeeeee;
-    --smos-muted: #999999;
-    --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  }
 }
 
 [data-smos-theme="dark"] {
@@ -386,9 +374,7 @@ body {
   }
 
   const sync = () => {
-    if (typeof applyTheme === 'function') {
-      applyTheme()
-    }
+    applyTheme()
     if (isTargetPage()) {
       if (styleEl) {
         styleEl.disabled = false
