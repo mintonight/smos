@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · All Platforms
 // @namespace    https://github.com/mintonight/smos
-// @version      1.4.1
+// @version      1.4.2
 // @description  SMOS：Bilibili、抖音、知乎和小红书仅搜索首页
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -32,6 +32,10 @@
 /* SMOS Bilibili */
 ;(() => {
   'use strict'
+
+  if (location.hostname !== 'www.bilibili.com') {
+    return
+  }
 
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
@@ -80,39 +84,7 @@
     } catch {
       // ignore
     }
-    // 兜底：只比较 URL 字符串，开销可忽略
     setInterval(check, 3000)
-  }
-
-  const createDomWatcher = callback => {
-    let observer = null
-    let frame = 0
-    const schedule = () => {
-      if (!frame) {
-        frame = requestAnimationFrame(() => {
-          frame = 0
-          callback()
-        })
-      }
-    }
-    return {
-      start() {
-        if (!observer && document.documentElement) {
-          observer = new MutationObserver(schedule)
-          observer.observe(document.documentElement, { childList: true, subtree: true })
-        }
-      },
-      stop() {
-        if (observer) {
-          observer.disconnect()
-          observer = null
-        }
-        if (frame) {
-          cancelAnimationFrame(frame)
-          frame = 0
-        }
-      },
-    }
   }
 
   const PLATFORM_KEY = 'smos.enabled.bilibili'
@@ -189,14 +161,31 @@
 
   const PLAYER_MODE_KEYS = Object.keys(PLAYER_MODE_LABELS)
 
-  const getBgColor = () => GM_getValue(STORAGE.bgColor, DEFAULTS.bgColor) || DEFAULTS.bgColor
-  const getBgImage = () => (GM_getValue(STORAGE.bgImage, DEFAULTS.bgImage) || '').trim()
-  const getHideRelated = () => Boolean(GM_getValue(STORAGE.hideRelated, DEFAULTS.hideRelated))
+  const readSetting = (key, fallback) => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(key, fallback) : fallback
+    } catch {
+      return fallback
+    }
+  }
+  const writeSetting = (key, value) => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(key, value)
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const getBgColor = () => readSetting(STORAGE.bgColor, DEFAULTS.bgColor) || DEFAULTS.bgColor
+  const getBgImage = () => (readSetting(STORAGE.bgImage, DEFAULTS.bgImage) || '').trim()
+  const getHideRelated = () => Boolean(readSetting(STORAGE.hideRelated, DEFAULTS.hideRelated))
   const getPlayerMode = () => {
-    const mode = String(GM_getValue(STORAGE.playerMode, DEFAULTS.playerMode) || DEFAULTS.playerMode)
+    const mode = String(readSetting(STORAGE.playerMode, DEFAULTS.playerMode) || DEFAULTS.playerMode)
     return PLAYER_MODE_KEYS.includes(mode) ? mode : DEFAULTS.playerMode
   }
-  const getApplyOnPlay = () => Boolean(GM_getValue(STORAGE.applyOnPlay, DEFAULTS.applyOnPlay))
+  const getApplyOnPlay = () => Boolean(readSetting(STORAGE.applyOnPlay, DEFAULTS.applyOnPlay))
 
   const addStyle = css => {
     if (typeof GM_addStyle === 'function') {
@@ -390,14 +379,13 @@ body {
       return 'https://search.bilibili.com/'
     }
 
-    if (/^BV[\w]+$/i.test(q)) {
-      return `https://www.bilibili.com/video/${q}/`
+    const bvid = q.match(/^[Bb][Vv](1[1-9A-HJ-NP-Za-km-z]{9})$/)
+    if (bvid) {
+      return `https://www.bilibili.com/video/BV${bvid[1]}/`
     }
-    if (/^av(\d+)$/i.test(q)) {
-      return `https://www.bilibili.com/video/${q}/`
-    }
-    if (/^\d{1,12}$/.test(q)) {
-      return `https://www.bilibili.com/video/av${q}/`
+    const aid = q.match(/^av(\d+)$/i)
+    if (aid) {
+      return `https://www.bilibili.com/video/av${aid[1]}/`
     }
     if (/^https?:\/\/(www\.)?bilibili\.com\/video\//i.test(q)) {
       return q
@@ -571,14 +559,6 @@ body {
     full: ['.bpx-player-ctrl-full', '.bilibili-player-video-btn-fullscreen'],
   }
 
-  /** 脚本 mode → bpx data-screen */
-  const MODE_TO_SCREEN = {
-    normal: 'normal',
-    wide: 'wide',
-    web: 'web',
-    full: 'full',
-  }
-
   const VIDEO_SELECTORS = [
     '.bpx-player-video-wrap video',
     '.bilibili-player-video video',
@@ -647,9 +627,6 @@ body {
       if (screen === 'wide' || screen === 'web' || screen === 'full' || screen === 'mini') {
         return screen
       }
-      if (screen === 'normal' || screen === '' || screen == null) {
-        // 继续用按钮状态兜底：data-screen 有时初始化稍晚
-      }
     }
 
     const body = document.body
@@ -694,23 +671,12 @@ body {
       return 'wide'
     }
 
-    if (container && container.getAttribute('data-screen') === 'normal') {
-      return 'normal'
-    }
     return 'normal'
   }
 
-  const isModeAlreadyApplied = mode => {
-    if (mode === 'normal') {
-      return getCurrentScreenMode() === 'normal'
-    }
-    return getCurrentScreenMode() === MODE_TO_SCREEN[mode]
-  }
+  const isModeAlreadyApplied = mode => getCurrentScreenMode() === mode
 
-  /**
-   * 宽屏切换时播放器会 scrollTo 顶，短暂屏蔽 window.scrollTo
-   * 对齐 Evolved disableWindowScroll
-   */
+  /** 对齐 Evolved disableWindowScroll */
   const withScrollBlocked = async action => {
     const original = window.scrollTo
     window.scrollTo = () => {}
@@ -722,10 +688,6 @@ body {
     }
   }
 
-  /**
-   * 仅在当前不是目标模式时点击一次按钮。
-   * 禁止“检测失败就再点一次”——宽屏按钮是 toggle，二次点击会退回常规。
-   */
   const clickPlayerButtonOnce = async mode => {
     if (mode === 'normal') {
       return true
@@ -785,7 +747,6 @@ body {
       doClick()
     }
 
-    // 只等待确认，不再盲目二次点击
     await sleep(400)
     return isModeAlreadyApplied(mode)
   }
@@ -806,17 +767,12 @@ body {
     }
   }
 
-  /**
-   * 播放器初始化后期可能把 data-screen 刷回 normal。
-   * 在 3 秒窗口内若目标模式被打回，最多再确保一次（带冷却，避免 toggle 抖动）。
-   */
   const startModeGuard = (mode, token) => {
     stopModeGuard()
     if (mode === 'normal') {
       return
     }
 
-    const target = MODE_TO_SCREEN[mode]
     const guardUntil = Date.now() + 3000
     let reapplyCount = 0
 
@@ -831,7 +787,6 @@ body {
       if (isModeAlreadyApplied(mode)) {
         return
       }
-      // 冷却：避免和刚完成的点击叠在一起
       if (Date.now() - lastModeClickAt < 600) {
         return
       }
@@ -844,7 +799,7 @@ body {
     if (container && typeof MutationObserver !== 'undefined') {
       modeGuardObserver = new MutationObserver(() => {
         const screen = container.getAttribute('data-screen')
-        if (screen && screen !== target && screen !== 'mini') {
+        if (screen && screen !== mode && screen !== 'mini') {
           tryFix()
         }
       })
@@ -854,7 +809,6 @@ body {
       })
     }
 
-    // 定时兜底（部分场景 data-screen 不触发或节点被替换）
     const poll = async () => {
       if (token !== playerModeToken || Date.now() > guardUntil) {
         stopModeGuard()
@@ -886,7 +840,6 @@ body {
       return
     }
 
-    // 等控制栏/容器出现，减少“点太早被播放器初始化冲掉”
     await waitFor(
       () =>
         document.querySelector('.bpx-player-container') ||
@@ -911,7 +864,6 @@ body {
       if (token !== playerModeToken) {
         return
       }
-      // 若首次被初始化冲掉，稍后只再尝试有限次（每次仍先检查是否已宽屏）
       for (let i = 0; i < 2 && token === playerModeToken; i += 1) {
         if (isModeAlreadyApplied(mode)) {
           break
@@ -957,7 +909,6 @@ body {
       }
       lastKey = key
       stopModeGuard()
-      // 等新播放器挂载
       setTimeout(() => {
         applyPlayerMode()
       }, 500)
@@ -990,7 +941,7 @@ body {
           return
         }
         const value = next.trim() || DEFAULTS.bgColor
-        GM_setValue(STORAGE.bgColor, value)
+        writeSetting(STORAGE.bgColor, value)
         applyBackgroundVars()
       })
 
@@ -1004,13 +955,13 @@ body {
           window.alert('仅支持 http(s) 或 data:image/ 链接')
           return
         }
-        GM_setValue(STORAGE.bgImage, value)
+        writeSetting(STORAGE.bgImage, value)
         applyBackgroundVars()
       })
 
       GM_registerMenuCommand('恢复默认背景', () => {
-        GM_setValue(STORAGE.bgColor, DEFAULTS.bgColor)
-        GM_setValue(STORAGE.bgImage, DEFAULTS.bgImage)
+        writeSetting(STORAGE.bgColor, DEFAULTS.bgColor)
+        writeSetting(STORAGE.bgImage, DEFAULTS.bgImage)
         applyBackgroundVars()
       })
     }
@@ -1020,7 +971,7 @@ body {
         `隐藏视频推荐：${getHideRelated() ? '开' : '关'}（点击切换）`,
         () => {
           const next = !getHideRelated()
-          GM_setValue(STORAGE.hideRelated, next)
+          writeSetting(STORAGE.hideRelated, next)
           applyHideRelated(next)
         },
       )
@@ -1031,7 +982,7 @@ body {
           const current = getPlayerMode()
           const idx = PLAYER_MODE_KEYS.indexOf(current)
           const next = PLAYER_MODE_KEYS[(idx + 1) % PLAYER_MODE_KEYS.length]
-          GM_setValue(STORAGE.playerMode, next)
+          writeSetting(STORAGE.playerMode, next)
           window.alert(
             `已切换为「${PLAYER_MODE_LABELS[next]}」\n刷新或下一次进入视频页生效（宽屏/网页全屏一般会立即尝试应用）。`,
           )
@@ -1045,7 +996,7 @@ body {
         `播放时再应用模式：${getApplyOnPlay() ? '开' : '关'}（点击切换）`,
         () => {
           const next = !getApplyOnPlay()
-          GM_setValue(STORAGE.applyOnPlay, next)
+          writeSetting(STORAGE.applyOnPlay, next)
           window.alert(
             next
               ? '已开启：非自动播放时，将在视频开始播放后再切换模式。'
@@ -1061,7 +1012,7 @@ body {
         `隐藏视频推荐（进视频页生效）：${getHideRelated() ? '开' : '关'}`,
         () => {
           const next = !getHideRelated()
-          GM_setValue(STORAGE.hideRelated, next)
+          writeSetting(STORAGE.hideRelated, next)
           window.alert(`隐藏视频推荐已${next ? '开启' : '关闭'}，进入视频页后生效。`)
         },
       )
@@ -1072,7 +1023,7 @@ body {
           const current = getPlayerMode()
           const idx = PLAYER_MODE_KEYS.indexOf(current)
           const next = PLAYER_MODE_KEYS[(idx + 1) % PLAYER_MODE_KEYS.length]
-          GM_setValue(STORAGE.playerMode, next)
+          writeSetting(STORAGE.playerMode, next)
           window.alert(`默认播放器模式已设为「${PLAYER_MODE_LABELS[next]}」，进入视频页后生效。`)
         },
       )
@@ -1097,6 +1048,10 @@ body {
 /* SMOS Douyin */
 ;(() => {
   'use strict'
+
+  if (location.hostname !== 'www.douyin.com') {
+    return
+  }
 
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
@@ -1145,7 +1100,6 @@ body {
     } catch {
       // ignore
     }
-    // 兜底：只比较 URL 字符串，开销可忽略
     setInterval(check, 3000)
   }
 
@@ -1250,8 +1204,25 @@ body {
     bgImage: '',
   }
 
-  const getBgColor = () => (GM_getValue('douyinstudy.bgColor', DEFAULTS.bgColor) || '').trim()
-  const getBgImage = () => (GM_getValue('douyinstudy.bgImage', DEFAULTS.bgImage) || '').trim()
+  const readSetting = (key, fallback) => {
+    try {
+      return typeof GM_getValue === 'function' ? GM_getValue(key, fallback) : fallback
+    } catch {
+      return fallback
+    }
+  }
+  const writeSetting = (key, value) => {
+    try {
+      if (typeof GM_setValue === 'function') {
+        GM_setValue(key, value)
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const getBgColor = () => (readSetting('douyinstudy.bgColor', DEFAULTS.bgColor) || '').trim()
+  const getBgImage = () => (readSetting('douyinstudy.bgImage', DEFAULTS.bgImage) || '').trim()
 
   const addStyle = css => {
     const create = parent => {
@@ -1429,7 +1400,6 @@ audio {
 }
 `
 
-  // 记录被 SMOS 静音的媒体，离开目标页时恢复，避免播放器图标显示有声但实际静音
   const mutedBySmos = new WeakSet()
 
   const stopMedia = media => {
@@ -1449,7 +1419,6 @@ audio {
     root.querySelectorAll?.('video, audio').forEach(stopMedia)
   }
 
-  // 只在目标页（精选 / 推荐首页）启用；合并脚本在其他站点、抖音视频页等都不能静音
   let mediaBlockingActive = isTargetPage()
 
   const muteMedia = media => {
@@ -1648,7 +1617,7 @@ audio {
     GM_registerMenuCommand('设置背景颜色', () => {
       const value = prompt('背景颜色（CSS 颜色值）', getBgColor())
       if (value !== null) {
-        GM_setValue('douyinstudy.bgColor', value.trim() || DEFAULTS.bgColor)
+        writeSetting('douyinstudy.bgColor', value.trim() || DEFAULTS.bgColor)
         applyBackground()
       }
     })
@@ -1663,13 +1632,13 @@ audio {
         alert('仅支持 http(s) 或 data:image/ 链接')
         return
       }
-      GM_setValue('douyinstudy.bgImage', next)
+      writeSetting('douyinstudy.bgImage', next)
       applyBackground()
     })
 
     GM_registerMenuCommand('恢复默认背景', () => {
-      GM_setValue('douyinstudy.bgColor', DEFAULTS.bgColor)
-      GM_setValue('douyinstudy.bgImage', DEFAULTS.bgImage)
+      writeSetting('douyinstudy.bgColor', DEFAULTS.bgColor)
+      writeSetting('douyinstudy.bgImage', DEFAULTS.bgImage)
       applyBackground()
     })
   }
@@ -1682,6 +1651,10 @@ audio {
 /* SMOS Zhihu */
 ;(() => {
   'use strict'
+
+  if (location.hostname !== 'www.zhihu.com') {
+    return
+  }
 
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
@@ -1730,7 +1703,6 @@ audio {
     } catch {
       // ignore
     }
-    // 兜底：只比较 URL 字符串，开销可忽略
     setInterval(check, 3000)
   }
 
@@ -1960,9 +1932,6 @@ main[role="main"] {
   }
 
   const sync = () => {
-    if (typeof applyTheme === 'function') {
-      applyTheme()
-    }
     if (isTargetPage()) {
       if (styleEl) {
         styleEl.disabled = false
@@ -1997,6 +1966,10 @@ main[role="main"] {
 /* SMOS Xiaohongshu */
 ;(() => {
   'use strict'
+
+  if (location.hostname !== 'www.xiaohongshu.com') {
+    return
+  }
 
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
@@ -2045,7 +2018,6 @@ main[role="main"] {
     } catch {
       // ignore
     }
-    // 兜底：只比较 URL 字符串，开销可忽略
     setInterval(check, 3000)
   }
 
@@ -2173,17 +2145,6 @@ main[role="main"] {
   --smos-text: #222222;
   --smos-muted: #888888;
   --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --smos-page-bg: #141418;
-    --smos-surface: #1f1f24;
-    --smos-border: #33333a;
-    --smos-text: #eeeeee;
-    --smos-muted: #999999;
-    --smos-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  }
 }
 
 [data-smos-theme="dark"] {
@@ -2358,9 +2319,7 @@ body {
   }
 
   const sync = () => {
-    if (typeof applyTheme === 'function') {
-      applyTheme()
-    }
+    applyTheme()
     if (isTargetPage()) {
       if (styleEl) {
         styleEl.disabled = false

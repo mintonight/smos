@@ -19,9 +19,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+
+      - name: Install dev tooling
+        run: npm ci
 
       - name: Generated content scripts are up to date
         run: node tools/build-extension.mjs --check
+
+      - name: smos.user.js is in sync with the standalone scripts
+        run: node tools/sync-userscripts.mjs --check
 
       - name: Verify userscripts
         run: node tools/verify-userscripts.mjs
@@ -31,3 +38,12 @@ jobs:
 
       - name: Verify versions
         run: node tools/verify-versions.mjs
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit and property tests
+        run: npm test
+
+      - name: Runtime verification (jsdom feature map)
+        run: npm run verify:runtime

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · Zhihu
 // @namespace    https://github.com/mintonight/smos
-// @version      1.2.1
+// @version      1.2.2
 // @description  SMOS Zhihu：知乎首页和发现页仅保留导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -21,6 +21,10 @@
 
 ;(() => {
   'use strict'
+
+  if (location.hostname !== 'www.zhihu.com') {
+    return
+  }
 
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
@@ -69,7 +73,6 @@
     } catch {
       // ignore
     }
-    // 兜底：只比较 URL 字符串，开销可忽略
     setInterval(check, 3000)
   }
 
@@ -299,9 +302,6 @@ main[role="main"] {
   }
 
   const sync = () => {
-    if (typeof applyTheme === 'function') {
-      applyTheme()
-    }
     if (isTargetPage()) {
       if (styleEl) {
         styleEl.disabled = false
