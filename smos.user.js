@@ -394,14 +394,13 @@ body {
       return 'https://search.bilibili.com/'
     }
 
-    if (/^BV[\w]+$/i.test(q)) {
-      return `https://www.bilibili.com/video/${q}/`
+    const bvid = q.match(/^[Bb][Vv](1[1-9A-HJ-NP-Za-km-z]{9})$/)
+    if (bvid) {
+      return `https://www.bilibili.com/video/BV${bvid[1]}/`
     }
-    if (/^av(\d+)$/i.test(q)) {
-      return `https://www.bilibili.com/video/${q}/`
-    }
-    if (/^\d{1,12}$/.test(q)) {
-      return `https://www.bilibili.com/video/av${q}/`
+    const aid = q.match(/^av(\d+)$/i)
+    if (aid) {
+      return `https://www.bilibili.com/video/av${aid[1]}/`
     }
     if (/^https?:\/\/(www\.)?bilibili\.com\/video\//i.test(q)) {
       return q

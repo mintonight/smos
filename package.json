@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node tools/build-extension.mjs && node tools/sync-userscripts.mjs",
     "lint": "eslint .",
-    "test": "node --test test/",
+    "test": "node --test \"test/**/*.test.mjs\"",
     "verify:runtime": "node tools/verify-runtime.mjs",
     "verify": "node tools/build-extension.mjs --check && node tools/sync-userscripts.mjs --check && node tools/verify-userscripts.mjs && node tools/verify-extension.mjs && node tools/verify-versions.mjs && npm run lint && npm test && npm run verify:runtime"
   },
