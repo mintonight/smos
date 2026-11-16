@@ -85,18 +85,12 @@ SMOS（Social Media Only Search）把社交媒体首页变成“仅搜索”界�
 
 ## 开发校验
 
-修改脚本后运行：
+修改分平台脚本后运行：
 
 ```bash
-node tools/verify-userscripts.mjs
-```
-
-该脚本会检查各脚本语法、UserScript 元数据，以及 `smos.user.js` 与四个分平台脚本的代码段是否同步。
-
-扩展版本校验：
-
-```bash
-node tools/verify-extension.mjs
+npm ci            # 首次：安装开发工具（eslint、jsdom），产物本身没有运行时依赖
+npm run build     # 生成 smos.user.js 的平台代码段和 extension/content/
+npm run verify    # 生成检查、语法/元数据/版本校验、lint、测试、jsdom 运行时验证
 ```
 
 ## License

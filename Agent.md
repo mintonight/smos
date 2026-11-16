@@ -25,13 +25,14 @@ SMOS（Social Media Only Search）把社交媒体首页变成“只有搜索”�
 ## 2. 仓库结构与职责
 
 ```text
-smos.user.js                     统一油猴脚本（四个平台代码段的副本）
+smos.user.js                     统一油猴脚本：头部手写，平台代码段由 tools/sync-userscripts.mjs 生成
 smos-bilibili/                    Bilibili 独立油猴脚本 + README + LICENSE
 smos-douyin/                      Douyin 独立油猴脚本 + README + LICENSE
 smos-zhihu/                       Zhihu 独立油猴脚本 + README + LICENSE
 smos-xiaohongshu/                 Xiaohongshu 独立油猴脚本 + README + LICENSE
 extension/
 ├─ manifest.json                  MV3 清单、权限、content_scripts、图标
+├─ content/05-route-hook.js       手写：MAIN world 钩住 history，派发 smos:locationchange
 ├─ content/00-core.js             手写：chrome.storage 适配、GM_* 兼容层
 ├─ content/10-bilibili.js         生成文件：来自独立油猴脚本
 ├─ content/20-douyin.js           生成文件
@@ -41,16 +42,24 @@ extension/
 ├─ options/                       手写：平台开关 + Bilibili 播放器设置
 └─ icons/                         16/32/48/128 扩展图标
 tools/
-├─ build-extension.mjs            从独立油猴脚本生成扩展内容脚本
+├─ build-extension.mjs            从独立油猴脚本生成扩展内容脚本（--check 只校验）
+├─ sync-userscripts.mjs           从独立油猴脚本生成 smos.user.js 的平台代码段（--check 只校验）
 ├─ verify-userscripts.mjs         校验油猴脚本语法、元数据和统一脚本同步
 ├─ verify-extension.mjs           校验扩展清单、资源、语法和生成文件是否最新
+├─ verify-versions.mjs            校验版本号一致性
+├─ verify-runtime.mjs             功能地图 + jsdom：在每个目标/非目标页面实际运行三种产物并断言
+├─ eslint-plugin-smos.mjs         项目自定义 lint 规则（定时器、页面全局补丁、未保护的 GM_*）
 ├─ pack-crx.mjs                   生成 CRX3 + ZIP
 ├─ setup-crx-key.mjs              首次生成/轮换签名密钥
 └─ make-concept-sheet.py          可选的品牌概念图拼图工具
 assets/
 ├─ brand/                         品牌图标与概念图
 └─ readme/                        README Hero 和预览
-.github/workflows/release.yml     push main 时构建、校验、打包、打 tag、发布
+.github/workflows/verify.yml      每次 push / PR：生成检查、校验、lint、测试、运行时验证
+.github/workflows/release.yml     推送 v* tag（或手动触发）时：校验、打包 CRX/ZIP、创建 Release
+test/                             node:test 单元测试和属性测试
+eslint.config.mjs                 ESLint 配置；已知违例的白名单和 TODO 都在这里
+package.json                      仅开发依赖（eslint、jsdom），产物不引入任何运行时依赖
 ```
 
 ## 3. 单一事实来源（最重要）
@@ -65,16 +74,14 @@ assets/
 然后按顺序同步：
 
 1. 修改独立平台脚本。
-2. 把对应代码段同步到 `smos.user.js` 中对应的 `/* SMOS <Platform> */` 段。
-3. 运行 `node tools/build-extension.mjs` 重新生成 `extension/content/10-*.js`。
-4. 运行两个校验脚本。
+2. 运行 `npm run build`（= `build-extension.mjs` + `sync-userscripts.mjs`），重新生成 `extension/content/[1-4]0-*.js` 和 `smos.user.js` 的平台代码段。
+3. 运行 `npm run verify`。
 
 规则：
 
-- **不要手改** `extension/content/10-bilibili.js`、`20-douyin.js`、`30-zhihu.js`、`40-xiaohongshu.js`，它们会被覆盖。
+- **不要手改** `extension/content/10-bilibili.js`、`20-douyin.js`、`30-zhihu.js`、`40-xiaohongshu.js` 和 `smos.user.js` 的平台代码段，它们会被覆盖（CI 用 `--check` 检查）。
 - `extension/content/00-core.js` 是手写文件，可以直接修改；它负责 `chrome.storage` 和 `GM_*` 兼容。
 - `extension/popup/`、`extension/options/` 是手写文件，可以直接修改。
-- `smos.user.js` 与独立脚本不一致时，`verify-userscripts.mjs` 会失败，不要绕过。
 - 如果平台逻辑没有变化，不要无故重写生成文件或改变版本号。
 
 ## 4. 运行模型与实现约定
@@ -90,31 +97,31 @@ assets/
 
 ### 4.2 平台脚本结构
 
-每个平台脚本是一个 IIFE，包含：
+每个平台脚本是一个 IIFE。IIFE 第一条语句必须是 hostname 守卫（`if (location.hostname !== 'www.<site>.com') return`），这样它在 `smos.user.js` 里也只会在自己的站点运行；`verify-runtime.mjs` 会断言统一脚本在每个站点的菜单和定时器与该站点的独立脚本完全一致。
+
+知乎、小红书、抖音的脚本包含：
 
 1. 平台开关读取：`smos.enabled.<platform>`。
 2. 目标页面判断 `isTargetPage()`。
 3. 样式注入 `addStyle()`。
 4. 挂载/卸载 `mount()` / `deactivate()`。
 5. `sync()`：根据当前 URL 启用或停用。
-6. SPA 路由监听：包装 `history.pushState` / `replaceState`、监听 `popstate`，并保留定时同步兜底。
+6. SPA 路由监听：扩展用 `content/05-route-hook.js`（MAIN world），油猴用 `unsafeWindow` 钩住页面自己的 `history`，再加 `navigatesuccess` / `popstate` / `hashchange`。现有的 3 秒轮询是 `eslint.config.mjs` 里登记的待清理项，不要再新增。
 7. 油猴菜单开关注册（扩展中由 `GM_registerMenuCommand` 空实现兼容，不要依赖它）。
 
-**不要因为当前不是目标页面就提前 `return` 整个脚本。** 否则 SPA 路由返回目标页面时无法恢复。样式可以默认禁用，但路由监听必须继续运行。
+**hostname 守卫之外，不要因为当前不是目标页面就提前 `return` 整个脚本。** 否则 SPA 路由返回目标页面时无法恢复。样式可以默认禁用，但路由监听必须继续运行。
+
+Bilibili 脚本结构不同（按首页/视频页一次性初始化），在共享运行时重构前保持现状。
 
 ### 4.3 平台所有权保护
 
-Zhihu/XHS 使用 `#smos-root`，Douyin 使用 `#dys-root`。脚本卸载时必须只移除自己平台的根节点：
-
-- 挂载时设置 `window.__smosMountedPlatform`。
-- 卸载时检查该标记，避免不同平台脚本互删 UI。
-- 新增平台时必须遵守同一约定。
+Zhihu/XHS 都使用 `#smos-root`，Douyin 使用 `#dys-root`，Bilibili 使用 `#soh-root`。有了 hostname 守卫，不同平台的代码不会在同一页面运行；知乎/小红书仍保留 `window.__smosMountedPlatform` 标记，等共享运行时为每个平台分配独立根节点 id 后再删除。
 
 ### 4.4 主题适配
 
 - 抖音、小红书搜索框使用 CSS 变量：`--smos-page-bg`、`--smos-surface`、`--smos-border`、`--smos-text`、`--smos-muted`、`--smos-shadow`；抖音另有 `--smos-overlay` 用于背景图叠加。
 - 通过读取页面背景亮度设置 `document.documentElement.dataset.smosTheme = "dark" | "light"`。
-- 小红书保留 `prefers-color-scheme` 作为兜底。
+- 小红书在读不到页面背景色时，用 `matchMedia('(prefers-color-scheme: dark)')` 兜底（在 `applyTheme()` 里，不在 CSS 里）。
 - 知乎目前使用固定浅色样式，不要无故引入主题变量。
 - 主题切换后必须重新计算，不要只在首次加载时读取一次。
 
@@ -141,7 +148,7 @@ Bilibili 已相对稳定，非必要不做重构。修改时必须至少回归�
 
 ### 5.1 油猴
 
-使用 `GM_getValue` / `GM_setValue`，并对 API 不存在的情况做保护。
+使用 `GM_getValue` / `GM_setValue`。调用必须在 `typeof GM_x === 'function'` 保护之下，或者走脚本里的 `readSetting` / `writeSetting`；lint 规则 `smos/guarded-gm` 会拦截。
 
 ### 5.2 扩展
 
@@ -179,16 +186,10 @@ Bilibili 已相对稳定，非必要不做重构。修改时必须至少回归�
 ## 6. 开发工作流
 
 1. 先读本文件，确认改动属于哪个平台、哪套交付物。
-2. 修改独立油猴脚本。
-3. 同步 `smos.user.js` 对应代码段。
-4. 运行 `node tools/build-extension.mjs`。
-5. 运行校验：
-
-```bash
-node tools/verify-userscripts.mjs
-node tools/verify-extension.mjs
-```
-
+2. 首次运行 `npm ci` 安装开发工具。
+3. 修改独立油猴脚本。
+4. 运行 `npm run build`。
+5. 运行 `npm run verify`（生成检查、四个 verify 脚本、lint、测试、运行时验证）。
 6. 做浏览器回归测试。
 7. 更新相关 README / 版本号。
 8. 只有用户明确要求时才 commit / push / 发版。
@@ -198,20 +199,19 @@ node tools/verify-extension.mjs
 - 独立油猴脚本：修改哪个平台就 bump 对应 `@version`。
 - 统一脚本：如果修改了 `smos.user.js` 中的平台代码段，bump `smos.user.js` 的 `@version`。
 - 扩展：只有需要发布新扩展版本时才 bump `extension/manifest.json` 的 `version`。
-- 不要为了让 CI 通过而随意 bump 版本；CI 会按 `v<manifest.version>` 判断是否发布。
+- 不要为了让 CI 通过而随意 bump 版本。
 
 ## 7. 测试规范
 
-### 7.1 静态校验
+### 7.1 自动校验
 
-每次改动至少运行：
+每次改动运行 `npm run verify`，CI（`verify.yml`）跑的是同一组检查：
 
-```bash
-node tools/verify-userscripts.mjs
-node tools/verify-extension.mjs
-```
-
-`verify-extension.mjs` 会检查生成文件是否最新；如果失败，先运行 `node tools/build-extension.mjs`。
+- `build-extension.mjs --check`、`sync-userscripts.mjs --check`：生成文件是否最新；失败就运行 `npm run build`。
+- `verify-userscripts.mjs`、`verify-extension.mjs`、`verify-versions.mjs`。
+- `npm run lint`：`no-undef`、`no-unused-vars`，以及 `smos/no-timer-patch`、`smos/no-global-patch`、`smos/guarded-gm`。lint 报错时按报错信息修根因；确实无法避免时，在 `eslint.config.mjs` 的白名单里加一条带 TODO 的条目，不要写行内注释解释。
+- `npm test`：`resolveSearchTarget`、各平台目标路由判断、`@match` 与 manifest 一致性。
+- `npm run verify:runtime`：按 `tools/verify-runtime.mjs` 里的功能地图，在 jsdom 中运行独立脚本、统一脚本和扩展内容脚本，断言搜索框是否挂载、抖音静音、菜单和定时器不跨平台。新增目标页面时先在功能地图里加一行。
 
 ### 7.2 浏览器回归
 
@@ -246,23 +246,14 @@ node tools/verify-extension.mjs
 
 ### 8.1 自动发布流程
 
-`.github/workflows/release.yml` 在 push 到 `main` 或手动触发时执行：
+- `.github/workflows/verify.yml`：每次 push 和 PR 都运行，不需要 secret，不发布。
+- `.github/workflows/release.yml`：**只在推送 `v*` tag 或手动触发（workflow_dispatch）时运行**；push `main` 不会发布。它会检查生成文件和两个 verify 脚本，校验 tag 等于 `v<manifest.version>`（手动触发时要求 manifest 版本大于最新 tag），用 secret `CRX_PRIVATE_KEY` 打包 CRX/ZIP、生成 `SHA256SUMS.txt`，若该版本还没有 Release 就创建 Release（手动触发时由 CI 打 tag）。
 
-1. `node tools/build-extension.mjs`
-2. `node tools/verify-userscripts.mjs`
-3. `node tools/verify-extension.mjs`
-4. 从 GitHub Actions secret `CRX_PRIVATE_KEY` 读取私钥。
-5. `node tools/pack-crx.mjs` 生成 CRX/ZIP。
-6. 生成 `SHA256SUMS.txt`。
-7. 如果 `v<manifest.version>` 还没有 Release，则打 tag 并创建 GitHub Release。
+发布新扩展版本（仅在用户明确要求时）：
 
-发布新扩展版本：
-
-1. 修改 `extension/manifest.json` 的 `version`。
-2. 提交并 push 到 `main`。
-3. 等待 CI 完成，检查 Release 中的 CRX、ZIP 和校验和。
-
-不要在本地手动创建同名 tag/release，除非在恢复故障并且已经和用户确认。
+1. 修改 `extension/manifest.json` 的 `version`，合入 `main`，等 `verify.yml` 通过。
+2. 在该提交上推送匹配的 tag：`git tag v<version> && git push origin v<version>`；或在 Actions 页面手动触发 release。
+3. 等待 release 完成，检查 Release 中的 CRX、ZIP 和校验和。
 
 ### 8.2 签名密钥
 
@@ -288,33 +279,30 @@ node tools/verify-extension.mjs
 - 保持现有风格：2 空格缩进、单引号、无分号、`'use strict'`、IIFE。
 - 优先使用 `const`，避免全局变量；跨平台共享状态放在 `window.__smos*` 命名空间。
 - DOM 选择器使用稳定的平台原生类名/属性，并准备兜底；不要依赖易变的哈希类名。
-- 所有 `GM_*` 调用都要有 API 存在性保护。
-- 不要用 `unsafeWindow`；不要注入远程脚本。
+- `unsafeWindow` 只用于 `hookPageHistory` 钩住页面自己的 `history`（沙箱里的包装对页面无效）；不要用它读写页面的其他状态。不要注入远程脚本。
 - 扩展内容脚本不要依赖 DOM 加载完成才执行；保持 `document-start` 兼容。
 - 生成文件不手改；手写文件改动后运行构建和校验。
 - 新增/修改 README 图片时，保持 `assets/readme/hero.svg` 为白底主版本，深色版本保留在 `assets/readme/hero-dark.svg`。
 
 ## 11. 常见陷阱
 
+以下陷阱已由检查覆盖，不再单列：跨站运行和跨平台互删（`verify-runtime`）、生成文件过期（`--check`）、未保护的 `GM_*`（lint）。
+
 1. **非目标页面提前 return**：会导致 SPA 返回目标页面时脚本不恢复。保留路由监听。
-2. **跨平台互删根节点**：必须检查 `window.__smosMountedPlatform`。
-3. **document-start 空节点**：创建 style/root 前等待 `head`/`body`。
-4. **扩展存储异步**：平台脚本必须等待 `__SMOS_EXT__.ready`。
-5. **生成文件过期**：先运行 `build-extension.mjs`，再运行 `verify-extension.mjs`。
-6. **扩展菜单命令无效**：扩展中 `GM_registerMenuCommand` 是空实现，平台开关由 popup/options 负责。
-7. **扩展版本号误 bump**：docs-only 改动不要触发新 Release，除非用户要求。
-8. **自定义背景**：扩展版本暂未实现自定义背景，不要声称已支持。
-9. **Bilibili 误改**：B 站已稳定，非必要不重构；改动必须回归首页和视频页。
-10. **隐私路径**：不要重新引入本地用户名路径或旧邮箱；历史已经被重写。
+2. **document-start 空节点**：创建 style/root 前等待 `head`/`body`。
+3. **扩展存储异步**：平台脚本必须等待 `__SMOS_EXT__.ready`（生成器已经包好）。
+4. **扩展菜单命令无效**：扩展中 `GM_registerMenuCommand` 是空实现，平台开关由 popup/options 负责。
+5. **扩展版本号误 bump**：docs-only 改动不要触发新 Release，除非用户要求。
+6. **自定义背景**：扩展版本暂未实现自定义背景，不要声称已支持。
+7. **Bilibili 改动**：改动必须回归首页和视频页；播放器模式逻辑的重写已列为后续工作，不要在上面继续叠加 sleep/重试。
+8. **隐私路径**：不要重新引入本地用户名路径或旧邮箱；历史已经被重写。
 
 ## 12. Definition of Done
 
 提交前确认：
 
-- [ ] 平台逻辑只改在独立油猴脚本，`smos.user.js` 已同步。
-- [ ] `node tools/build-extension.mjs` 已运行。
-- [ ] `node tools/verify-userscripts.mjs` 通过。
-- [ ] `node tools/verify-extension.mjs` 通过。
+- [ ] 平台逻辑只改在独立油猴脚本，已运行 `npm run build`。
+- [ ] `npm run verify` 通过。
 - [ ] 受影响的平台完成浏览器回归，无控制台异常。
 - [ ] 扩展 popup/options 与存储状态一致（如涉及）。
 - [ ] 相关 README / 版本号已更新（如涉及）。
@@ -324,14 +312,19 @@ node tools/verify-extension.mjs
 ## 13. 快速命令
 
 ```bash
-# 生成扩展内容脚本
-node tools/build-extension.mjs
+# 安装开发工具（首次）
+npm ci
 
-# 校验油猴脚本与统一脚本同步
-node tools/verify-userscripts.mjs
+# 生成扩展内容脚本 + smos.user.js 平台代码段
+npm run build
 
-# 校验扩展（会检查生成文件是否最新）
-node tools/verify-extension.mjs
+# 全部校验（与 CI 相同）
+npm run verify
+
+# 单独运行
+npm run lint
+npm test
+npm run verify:runtime -- --verbose
 
 # 本地打包 CRX/ZIP（需要 .keys/smos-extension.pem）
 node tools/pack-crx.mjs

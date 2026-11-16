@@ -6,15 +6,13 @@
 
 ## 快速记忆
 
-- 平台逻辑只改 `smos-*/smos-*.user.js`，然后同步 `smos.user.js`。
-- 扩展内容脚本由 `node tools/build-extension.mjs` 生成，不要手改 `extension/content/10-*.js`。
-- 提交前运行：
+- 平台逻辑只改 `smos-*/smos-*.user.js`，然后运行 `npm run build` 生成 `smos.user.js` 平台代码段和 `extension/content/[1-4]0-*.js`，不要手改它们。
+- 提交前运行（首次先 `npm ci`）：
 
 ```bash
-node tools/verify-userscripts.mjs
-node tools/verify-extension.mjs
+npm run verify
 ```
 
-- 扩展发版只改 `extension/manifest.json` 的 `version`；push `main` 会触发 CI 打 tag 并发布。
+- 扩展发版：改 `extension/manifest.json` 的 `version` 并合入 `main` 后，推送匹配的 `v<version>` tag 才会触发 `release.yml`；push `main` 本身不会发布。只在用户明确要求时发版。
 - 不要提交 `.keys/`、`*.pem`、`dist/`、`*.crx`，不要引入个人绝对路径、邮箱或截图隐私。
 - 浏览器回归使用 ego-browser；测试扩展前先停用 Tampermonkey 里的 SMOS 脚本，避免重复注入。
