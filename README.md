@@ -1,98 +1,91 @@
-<p align="center">
-  <img src="./assets/readme/hero.svg" width="100%" alt="SMOS：把 Bilibili、抖音、知乎、小红书的首页变成仅搜索界面">
-</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/readme/hero-dark.svg">
+  <img src="./assets/readme/hero.svg" width="1120" alt="SMOS — 首页，只留搜索。支持 Bilibili、抖音、知乎、小红书。">
+</picture>
 
-# SMOS   
+# SMOS
 
-SMOS（Social Media Only Search）把社交媒体首页变成“仅搜索”界面，提供油猴脚本和 Manifest V3 浏览器扩展两种安装方式。
+**Social Media Only Search** · 隐藏社交媒体首页的推荐流，保留导航与搜索。提供油猴脚本和 Chrome / Edge 扩展两种安装方式。
 
-## Preview
+[安装 / Install](#安装--install) · [支持范围 / Support](#支持范围--support) · [页面预览 / Preview](#页面预览--preview) · [开发 / Development](#开发--development)
 
-以下截图来自加载 SMOS 扩展后的实际页面，点击图片可查看大图。
+## 安装 / Install
 
-<table width="100%">
+选择一种方式即可。**不要在同一网站同时启用 SMOS 扩展和油猴脚本**，以免重复注入。
+
+### 油猴脚本
+
+1. 安装 [Tampermonkey](https://www.tampermonkey.net/) 或 [Violentmonkey](https://violentmonkey.github.io/)。
+2. 打开 **[安装 SMOS 总脚本](https://raw.githubusercontent.com/mintonight/smos/main/smos.user.js)**，在脚本管理器中确认安装。
+3. 访问下方支持的页面。总脚本会按当前网站启用对应功能；平台开关在脚本管理器的菜单中。
+
+Raw 链接不可用时，可用 [jsDelivr 镜像](https://cdn.jsdelivr.net/gh/mintonight/smos/smos.user.js)（更新可能有缓存延迟）。
+
+### Chrome / Edge 扩展
+
+1. 打开 **[最新发布 / Latest release](https://github.com/mintonight/smos/releases/latest)**，下载 Assets 中的 `smos-extension-*.zip` 并解压。
+2. 打开 `chrome://extensions`（Edge 为 `edge://extensions`），开启「开发者模式」。
+3. 点击「加载已解压的扩展程序」，选择解压后的目录。点击工具栏的 SMOS 图标设置平台开关。
+
+普通安装建议使用 ZIP；Chrome 对直接安装 CRX 有限制。扩展暂未适配 Firefox。参见 [完整扩展说明](./extension/README.md)。
+
+<details>
+<summary>只需要一个平台？安装独立脚本</summary>
+
+同样需要先安装脚本管理器。不要和总脚本同时启用。
+
+| 平台 | 安装 | 备用镜像 | 说明 |
+| --- | --- | --- | --- |
+| Bilibili | [Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-bilibili/smos-bilibili.user.js) | [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-bilibili/smos-bilibili.user.js) | [平台说明](./smos-bilibili) |
+| 抖音 / Douyin | [Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-douyin/smos-douyin.user.js) | [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-douyin/smos-douyin.user.js) | [平台说明](./smos-douyin) |
+| 知乎 / Zhihu | [Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-zhihu/smos-zhihu.user.js) | [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-zhihu/smos-zhihu.user.js) | [平台说明](./smos-zhihu) |
+| 小红书 / Xiaohongshu | [Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-xiaohongshu/smos-xiaohongshu.user.js) | [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-xiaohongshu/smos-xiaohongshu.user.js) | [平台说明](./smos-xiaohongshu) |
+
+</details>
+
+## 支持范围 / Support
+
+| 平台 | 生效页面 | 页面变化 |
+| --- | --- | --- |
+| Bilibili | 首页 `/`、`/index.html`；视频、番剧等播放页¹ | 首页仅搜索；播放页可隐藏相关推荐、设置播放器模式 |
+| 抖音 / Douyin | 精选 `/jingxuan` 及其子路径；推荐首页 `/?recommend=*` | 隐藏内容流、保留搜索；目标页暂停并静音音视频 |
+| 知乎 / Zhihu | 首页 `/`、发现 `/explore`、热榜 `/hot` | 保留导航，内容区替换为搜索框 |
+| 小红书 / Xiaohongshu | 首页 `/`、探索 `/explore` | 保留导航，内容区替换为搜索框 |
+
+¹ Bilibili 播放页覆盖 `/video/*`、`/bangumi/play/*`、`/list/*`、`/medialist/play/*`、`/cheese/*`、`/festival/*`。
+
+- 搜索仍使用平台原生结果页，不替换搜索结果。
+- 抖音、知乎、小红书离开目标路由后移除搜索界面，返回时恢复；抖音的媒体限制也只在目标页生效。
+- 抖音、小红书适配亮色 / 深色主题；知乎使用浅色界面。
+- Bilibili 与抖音的自定义背景设置仅在油猴版提供，扩展版暂不支持。
+
+## 页面预览 / Preview
+
+以下为已有的扩展实测截图，并非示意图。点击查看原图；网站本身的导航可能随更新变化。
+
+<table>
   <tr>
-    <td align="center" width="50%">
-      <a href="./assets/readme/preview-bilibili.png"><img src="./assets/readme/preview-bilibili.png" alt="SMOS Bilibili 首页搜索界面" width="100%"></a>
-      <br>
-      <sub><b>Bilibili</b></sub>
-    </td>
-    <td align="center" width="50%">
-      <a href="./assets/readme/preview-douyin.png"><img src="./assets/readme/preview-douyin.png" alt="SMOS 抖音精选页搜索界面" width="100%"></a>
-      <br>
-      <sub><b>抖音</b></sub>
-    </td>
+    <td width="50%"><b>Bilibili · 首页</b><br><a href="./assets/readme/preview-bilibili.png"><img src="./assets/readme/preview-bilibili.png" alt="加载 SMOS 扩展后的 Bilibili 首页：原生顶栏下方只保留搜索框" width="100%"></a></td>
+    <td width="50%"><b>抖音 · 精选</b><br><a href="./assets/readme/preview-douyin.png"><img src="./assets/readme/preview-douyin.png" alt="加载 SMOS 扩展后的抖音精选页：保留侧栏，隐藏视频流，中央显示搜索框" width="100%"></a></td>
   </tr>
   <tr>
-    <td align="center" width="50%">
-      <a href="./assets/readme/preview-zhihu.png"><img src="./assets/readme/preview-zhihu.png" alt="SMOS 知乎热榜页搜索界面" width="100%"></a>
-      <br>
-      <sub><b>知乎</b></sub>
-    </td>
-    <td align="center" width="50%">
-      <a href="./assets/readme/preview-xiaohongshu.png"><img src="./assets/readme/preview-xiaohongshu.png" alt="SMOS 小红书探索页搜索界面" width="100%"></a>
-      <br>
-      <sub><b>小红书</b></sub>
-    </td>
+    <td width="50%"><b>知乎 · 热榜</b><br><a href="./assets/readme/preview-zhihu.png"><img src="./assets/readme/preview-zhihu.png" alt="加载 SMOS 扩展后的知乎热榜页：保留顶栏，中央显示搜索框" width="100%"></a></td>
+    <td width="50%"><b>小红书 · 探索</b><br><a href="./assets/readme/preview-xiaohongshu.png"><img src="./assets/readme/preview-xiaohongshu.png" alt="加载 SMOS 扩展后的小红书探索页：保留原生导航与搜索入口，内容区只显示居中搜索框" width="100%"></a></td>
   </tr>
 </table>
 
-## 总脚本
+## 开发 / Development
 
-推荐直接安装总脚本，它会根据当前网站自动启用对应平台功能：
-
-- [GitHub Raw 安装](https://raw.githubusercontent.com/mintonight/smos/main/smos.user.js)
-- [jsDelivr 安装](https://cdn.jsdelivr.net/gh/mintonight/smos/smos.user.js)
-
-## 浏览器扩展
-
-仓库中的 [`extension/`](./extension) 是 Manifest V3 扩展版本，可在 Chrome/Edge 中通过“加载已解压的扩展程序”安装。每次 push / PR 都会跑校验（`verify.yml`）；推送 `v*` tag（需与 `manifest.json` 版本一致）时自动构建 CRX/ZIP 并发布 GitHub Release（`release.yml`）。
-
-- 安装与开发说明：[`extension/README.md`](./extension/README.md)
-- 发布产物：GitHub Releases 中的 `.crx` 和 `.zip`
-
-## 平台目录
-
-| 平台 | 支持页面 | 脚本 |
-| --- | --- | --- |
-| Bilibili | `/`、视频/番剧等内容页 | [`smos-bilibili`](./smos-bilibili) |
-| Douyin | `/jingxuan`、`/?recommend=*` | [`smos-douyin`](./smos-douyin) |
-| Zhihu | `/`、`/explore`、`/hot` | [`smos-zhihu`](./smos-zhihu) |
-| Xiaohongshu | `/`、`/explore` | [`smos-xiaohongshu`](./smos-xiaohongshu) |
-
-## 安装单个平台（可选）
-
-先安装 [Tampermonkey](https://www.tampermonkey.net/) 或 Violentmonkey，再选择对应平台目录中的脚本：
-
-- Bilibili：[Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-bilibili/smos-bilibili.user.js) · [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-bilibili/smos-bilibili.user.js)
-- Douyin：[Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-douyin/smos-douyin.user.js) · [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-douyin/smos-douyin.user.js)
-- Zhihu：[Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-zhihu/smos-zhihu.user.js) · [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-zhihu/smos-zhihu.user.js)
-- Xiaohongshu：[Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-xiaohongshu/smos-xiaohongshu.user.js) · [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-xiaohongshu/smos-xiaohongshu.user.js)
-
-## 功能
-
-- 保留平台原生顶栏、侧栏和导航。
-- 隐藏首页推荐流，只显示可聚焦的中央搜索框。
-- 使用平台原生搜索结果页，不处理详情页。
-- Bilibili 保留播放器模式、背景设置等原有功能。
-- 油猴菜单中可分别开关 Bilibili、抖音、知乎和小红书脚本。
-- 在平台内进入专栏、关注、通知等非目标模块时自动移除搜索框，返回首页、热榜、精选等页面时自动恢复。
-- 抖音、小红书搜索框适配亮色和深色模式。
-
-## 目录
-
-每个平台目录都包含独立的油猴脚本、README 和 MIT License；扩展版本位于 `extension/`，平台内容脚本由油猴脚本生成。
-
-## 开发校验
-
-修改分平台脚本后运行：
+平台逻辑维护在 `smos-*/smos-*.user.js`，总脚本与扩展内容脚本由工具生成。修改后运行：
 
 ```bash
-npm ci            # 首次：安装开发工具（eslint、jsdom），产物本身没有运行时依赖
+npm ci            # 首次：安装开发工具；产物本身没有运行时依赖
 npm run build     # 生成 smos.user.js 的平台代码段和 extension/content/
-npm run verify    # 生成检查、语法/元数据/版本校验、lint、测试、jsdom 运行时验证
+npm run verify    # 同步、语法、版本、lint、测试与 jsdom 运行时验证
 ```
+
+[贡献与开发约定](./Agent.md) · [扩展构建与发布](./extension/README.md#构建-crx--zip) · [反馈问题](https://github.com/mintonight/smos/issues)
 
 ## License
 
-MIT
+[MIT](./LICENSE)
