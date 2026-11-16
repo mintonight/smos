@@ -38,7 +38,7 @@ function checkSyntax(relativePath) {
 const buildScript = path.join(root, 'tools', 'build-extension.mjs')
 try {
   execFileSync(process.execPath, [buildScript, '--check'], { stdio: 'pipe' })
-} catch (error) {
+} catch {
   errors.push('Generated content scripts are out of date; run node tools/build-extension.mjs')
 }
 
@@ -49,7 +49,7 @@ check(manifest.action && manifest.action.default_popup, 'manifest action.default
 check(manifest.options_ui && manifest.options_ui.page, 'manifest options_ui.page is missing')
 
 const requiredFiles = new Set(['manifest.json', 'content/00-core.js'])
-for (const [size, icon] of Object.entries(manifest.icons || {})) {
+for (const icon of Object.values(manifest.icons || {})) {
   requiredFiles.add(icon)
 }
 for (const script of manifest.content_scripts || []) {
