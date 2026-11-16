@@ -23,6 +23,10 @@
 ;(() => {
   'use strict'
 
+  if (location.hostname !== 'www.douyin.com') {
+    return
+  }
+
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
   // 扩展：content/05-route-hook.js 在 MAIN world 钩住 history 并派发 SMOS_ROUTE_EVENT。

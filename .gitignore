@@ -5,3 +5,6 @@
 # Release artifacts
 dist/
 *.crx
+
+# Dev dependencies
+node_modules/

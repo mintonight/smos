@@ -1,0 +1,18 @@
+{
+  "name": "smos",
+  "private": true,
+  "type": "module",
+  "description": "Dev tooling only. SMOS userscripts and the extension ship with no runtime dependencies.",
+  "scripts": {
+    "build": "node tools/build-extension.mjs && node tools/sync-userscripts.mjs",
+    "lint": "eslint .",
+    "test": "node --test test/",
+    "verify:runtime": "node tools/verify-runtime.mjs",
+    "verify": "node tools/build-extension.mjs --check && node tools/sync-userscripts.mjs --check && node tools/verify-userscripts.mjs && node tools/verify-extension.mjs && node tools/verify-versions.mjs && npm run lint && npm test && npm run verify:runtime"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.5",
+    "globals": "^17.14.0",
+    "jsdom": "^24.1.3"
+  }
+}

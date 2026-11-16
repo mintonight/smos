@@ -33,6 +33,10 @@
 ;(() => {
   'use strict'
 
+  if (location.hostname !== 'www.bilibili.com') {
+    return
+  }
+
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
   // 扩展：content/05-route-hook.js 在 MAIN world 钩住 history 并派发 SMOS_ROUTE_EVENT。
@@ -1098,6 +1102,10 @@ body {
 ;(() => {
   'use strict'
 
+  if (location.hostname !== 'www.douyin.com') {
+    return
+  }
+
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
   // 扩展：content/05-route-hook.js 在 MAIN world 钩住 history 并派发 SMOS_ROUTE_EVENT。
@@ -1683,6 +1691,10 @@ audio {
 ;(() => {
   'use strict'
 
+  if (location.hostname !== 'www.zhihu.com') {
+    return
+  }
+
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
   // 扩展：content/05-route-hook.js 在 MAIN world 钩住 history 并派发 SMOS_ROUTE_EVENT。
@@ -1997,6 +2009,10 @@ main[role="main"] {
 /* SMOS Xiaohongshu */
 ;(() => {
   'use strict'
+
+  if (location.hostname !== 'www.xiaohongshu.com') {
+    return
+  }
 
   // ---------------------------------------------------------------------------
   // 路由 / DOM 监听（SPA）
