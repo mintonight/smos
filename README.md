@@ -7,7 +7,22 @@
 
 **Social Media Only Search** · 隐藏社交媒体首页的推荐流，保留导航与搜索。提供油猴脚本和 Chrome / Edge 扩展两种安装方式。
 
-[安装 / Install](#安装--install) · [支持范围 / Support](#支持范围--support) · [页面预览 / Preview](#页面预览--preview) · [开发 / Development](#开发--development)
+[页面预览 / Preview](#页面预览--preview) · [安装 / Install](#安装--install) · [支持范围 / Support](#支持范围--support) · [开发 / Development](#开发--development)
+
+## 页面预览 / Preview
+
+以下为已有的扩展实测截图，并非示意图。点击查看原图；网站本身的导航可能随更新变化。
+
+<table>
+  <tr>
+    <td width="50%"><b>Bilibili · 首页</b><br><a href="./assets/readme/preview-bilibili.png"><img src="./assets/readme/preview-bilibili.png" alt="加载 SMOS 扩展后的 Bilibili 首页：原生顶栏下方只保留搜索框" width="100%"></a></td>
+    <td width="50%"><b>抖音 · 精选</b><br><a href="./assets/readme/preview-douyin.png"><img src="./assets/readme/preview-douyin.png" alt="加载 SMOS 扩展后的抖音精选页：保留侧栏，隐藏视频流，中央显示搜索框" width="100%"></a></td>
+  </tr>
+  <tr>
+    <td width="50%"><b>知乎 · 热榜</b><br><a href="./assets/readme/preview-zhihu.png"><img src="./assets/readme/preview-zhihu.png" alt="加载 SMOS 扩展后的知乎热榜页：保留顶栏，中央显示搜索框" width="100%"></a></td>
+    <td width="50%"><b>小红书 · 探索</b><br><a href="./assets/readme/preview-xiaohongshu.png"><img src="./assets/readme/preview-xiaohongshu.png" alt="加载 SMOS 扩展后的小红书探索页：保留原生导航与搜索入口，内容区只显示居中搜索框" width="100%"></a></td>
+  </tr>
+</table>
 
 ## 安装 / Install
 
@@ -58,21 +73,6 @@ Raw 链接不可用时，可用 [jsDelivr 镜像](https://cdn.jsdelivr.net/gh/mi
 - 抖音、知乎、小红书离开目标路由后移除搜索界面，返回时恢复；抖音的媒体限制也只在目标页生效。
 - 抖音、小红书适配亮色 / 深色主题；知乎使用浅色界面。
 - Bilibili 与抖音的自定义背景设置仅在油猴版提供，扩展版暂不支持。
-
-## 页面预览 / Preview
-
-以下为已有的扩展实测截图，并非示意图。点击查看原图；网站本身的导航可能随更新变化。
-
-<table>
-  <tr>
-    <td width="50%"><b>Bilibili · 首页</b><br><a href="./assets/readme/preview-bilibili.png"><img src="./assets/readme/preview-bilibili.png" alt="加载 SMOS 扩展后的 Bilibili 首页：原生顶栏下方只保留搜索框" width="100%"></a></td>
-    <td width="50%"><b>抖音 · 精选</b><br><a href="./assets/readme/preview-douyin.png"><img src="./assets/readme/preview-douyin.png" alt="加载 SMOS 扩展后的抖音精选页：保留侧栏，隐藏视频流，中央显示搜索框" width="100%"></a></td>
-  </tr>
-  <tr>
-    <td width="50%"><b>知乎 · 热榜</b><br><a href="./assets/readme/preview-zhihu.png"><img src="./assets/readme/preview-zhihu.png" alt="加载 SMOS 扩展后的知乎热榜页：保留顶栏，中央显示搜索框" width="100%"></a></td>
-    <td width="50%"><b>小红书 · 探索</b><br><a href="./assets/readme/preview-xiaohongshu.png"><img src="./assets/readme/preview-xiaohongshu.png" alt="加载 SMOS 扩展后的小红书探索页：保留原生导航与搜索入口，内容区只显示居中搜索框" width="100%"></a></td>
-  </tr>
-</table>
 
 ## 开发 / Development
 
