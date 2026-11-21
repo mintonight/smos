@@ -209,12 +209,15 @@ body {
 
 [data-testid="primaryColumn"],
 [data-testid="sidebarColumn"] {
-  display: none !important;
+  visibility: hidden !important;
 }
 
 #smos-root {
   position: fixed;
-  inset: 0 0 0 var(--smos-left, 0px);
+  top: 0;
+  left: var(--smos-left, 0px);
+  width: var(--smos-width, 600px);
+  height: 100vh;
   z-index: 2;
   display: grid;
   place-items: center;
@@ -225,7 +228,7 @@ body {
 
 #smos-form {
   display: flex;
-  width: min(680px, 92vw);
+  width: min(680px, 100%);
   padding: 8px;
   border: 1px solid var(--smos-border);
   border-radius: 14px;
@@ -270,15 +273,17 @@ body {
 @media (max-width: 600px) {
   #smos-root {
     left: 0;
+    width: 100vw;
   }
 }
 `)
 
   const updateFrame = () => {
     const nav = document.querySelector('header[role="banner"]')
-    const rect = nav?.getBoundingClientRect()
-    const left = rect && rect.width > 0 ? Math.min(Math.ceil(rect.right), 360) : 0
-    document.documentElement.style.setProperty('--smos-left', `${Math.max(0, left)}px`)
+    const navRight = nav?.getBoundingClientRect().right || 0
+    const width = window.innerWidth - navRight
+    document.documentElement.style.setProperty('--smos-left', `${Math.max(0, Math.round(navRight))}px`)
+    document.documentElement.style.setProperty('--smos-width', `${Math.max(0, Math.round(width))}px`)
   }
 
   const applyTheme = () => {
@@ -369,6 +374,7 @@ body {
       if (styleEl) {
         styleEl.disabled = false
       }
+      updateFrame()
       mount()
     } else {
       deactivate()
