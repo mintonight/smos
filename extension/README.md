@@ -1,6 +1,6 @@
 # SMOS 浏览器扩展
 
-把 Bilibili、抖音、知乎、小红书的首页变成“仅搜索”界面的 Manifest V3 扩展。
+把 Bilibili、抖音、知乎、小红书、X 与 YouTube 的首页变成“仅搜索”界面的 Manifest V3 扩展。
 
 ## 安装（开发者模式）
 
@@ -16,11 +16,11 @@ GitHub Releases 也会提供已签名的 `.crx` 和 `.zip`。Chrome 默认只允
 
 ## 功能
 
-- 平台开关：Bilibili、抖音、知乎、小红书分别启用/停用。
+- 平台开关：Bilibili、抖音、知乎、小红书、X、YouTube 分别启用/停用。
 - 关闭平台后，对应网站恢复原生首页；已打开页面会自动刷新。
 - Bilibili：播放器模式、隐藏相关推荐、播放时应用播放器模式。
 - 抖音、知乎、小红书：保留原生导航和搜索框，适配亮色/深色模式。
-- 知乎支持 `/`、`/explore`、`/hot`；小红书支持 `/`、`/explore`；抖音支持 `/jingxuan`、`/?recommend=*`。
+- 知乎支持 `/`、`/explore`、`/hot`；小红书支持 `/`、`/explore`；抖音支持 `/jingxuan`、`/?recommend=*`；X 支持 `/`、`/home`；YouTube 支持 `/`。
 - 自定义背景功能暂未加入扩展版本。
 
 ## 目录
@@ -33,7 +33,9 @@ extension/
 │  ├─ 10-bilibili.js      # 由分平台油猴脚本生成
 │  ├─ 20-douyin.js
 │  ├─ 30-zhihu.js
-│  └─ 40-xiaohongshu.js
+│  ├─ 40-xiaohongshu.js
+│  ├─ 50-x.js
+│  └─ 60-youtube.js
 ├─ popup/                 # 工具栏弹窗
 ├─ options/               # 完整设置页
 └─ icons/

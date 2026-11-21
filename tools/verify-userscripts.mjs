@@ -44,8 +44,22 @@ const platforms = [
     key: 'xiaohongshu',
     file: 'smos-xiaohongshu/smos-xiaohongshu.user.js',
     marker: '/* SMOS Xiaohongshu */',
-    nextMarker: null,
+    nextMarker: '/* SMOS X */',
     requiredMatches: ['*://www.xiaohongshu.com/*'],
+  },
+  {
+    key: 'x',
+    file: 'smos-x/smos-x.user.js',
+    marker: '/* SMOS X */',
+    nextMarker: '/* SMOS Youtube */',
+    requiredMatches: ['*://x.com/*'],
+  },
+  {
+    key: 'youtube',
+    file: 'smos-youtube/smos-youtube.user.js',
+    marker: '/* SMOS Youtube */',
+    nextMarker: null,
+    requiredMatches: ['*://www.youtube.com/*'],
   },
 ]
 

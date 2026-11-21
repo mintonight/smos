@@ -11,6 +11,8 @@ export const PLATFORMS = [
   { key: 'douyin', source: 'smos-douyin/smos-douyin.user.js', output: '20-douyin.js' },
   { key: 'zhihu', source: 'smos-zhihu/smos-zhihu.user.js', output: '30-zhihu.js' },
   { key: 'xiaohongshu', source: 'smos-xiaohongshu/smos-xiaohongshu.user.js', output: '40-xiaohongshu.js' },
+  { key: 'x', source: 'smos-x/smos-x.user.js', output: '50-x.js' },
+  { key: 'youtube', source: 'smos-youtube/smos-youtube.user.js', output: '60-youtube.js' },
 ]
 
 const startMarker = ';(() => {'

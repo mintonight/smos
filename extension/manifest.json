@@ -3,7 +3,7 @@
   "name": "SMOS · 社交媒体仅搜索",
   "short_name": "SMOS",
   "version": "1.4.2",
-  "description": "把 Bilibili、抖音、知乎、小红书的首页变成仅搜索界面。",
+  "description": "把 Bilibili、抖音、知乎、小红书、X 与 YouTube 的首页变成仅搜索界面。",
   "permissions": [
     "storage"
   ],
@@ -40,7 +40,9 @@
         "*://www.bilibili.com/festival/*",
         "*://www.douyin.com/*",
         "*://www.zhihu.com/*",
-        "*://www.xiaohongshu.com/*"
+        "*://www.xiaohongshu.com/*",
+        "*://x.com/*",
+        "*://www.youtube.com/*"
       ],
       "js": [
         "content/05-route-hook.js"
@@ -96,6 +98,28 @@
       "js": [
         "content/00-core.js",
         "content/40-xiaohongshu.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "*://x.com/*"
+      ],
+      "js": [
+        "content/00-core.js",
+        "content/50-x.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "*://www.youtube.com/*"
+      ],
+      "js": [
+        "content/00-core.js",
+        "content/60-youtube.js"
       ],
       "run_at": "document_start",
       "all_frames": false

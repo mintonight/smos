@@ -19,6 +19,8 @@ SMOS（Social Media Only Search）把社交媒体首页变成“只有搜索”�
 | Douyin | `/jingxuan`、`/jingxuan/*`、`/?recommend=*` | 搜索、用户、视频详情等 |
 | Zhihu | `/`、`/explore`、`/hot` | 搜索、专栏、关注、通知等 |
 | Xiaohongshu | `/`、`/explore` | 搜索、详情等 |
+| X（Twitter） | `/`、`/home` | 搜索、通知、私信、个人主页、帖子详情等 |
+| YouTube | `/` | 搜索结果、观看页、订阅、频道、播放列表、Shorts 等 |
 
 **不要擅自扩大目标页面范围。** 新增或修改目标路由时，必须同步更新平台脚本、统一脚本、扩展内容脚本、README 和测试。
 
@@ -30,6 +32,8 @@ smos-bilibili/                    Bilibili 独立油猴脚本 + README + LICENSE
 smos-douyin/                      Douyin 独立油猴脚本 + README + LICENSE
 smos-zhihu/                       Zhihu 独立油猴脚本 + README + LICENSE
 smos-xiaohongshu/                 Xiaohongshu 独立油猴脚本 + README + LICENSE
+smos-x/                           X（Twitter）独立油猴脚本 + README + LICENSE
+smos-youtube/                     YouTube 独立油猴脚本 + README + LICENSE
 extension/
 ├─ manifest.json                  MV3 清单、权限、content_scripts、图标
 ├─ content/05-route-hook.js       手写：MAIN world 钩住 history，派发 smos:locationchange
@@ -38,6 +42,8 @@ extension/
 ├─ content/20-douyin.js           生成文件
 ├─ content/30-zhihu.js            生成文件
 ├─ content/40-xiaohongshu.js      生成文件
+├─ content/50-x.js                生成文件
+├─ content/60-youtube.js          生成文件
 ├─ popup/                         手写：工具栏平台开关
 ├─ options/                       手写：平台开关 + Bilibili 播放器设置
 └─ icons/                         16/32/48/128 扩展图标
@@ -70,6 +76,8 @@ package.json                      仅开发依赖（eslint、jsdom），产物�
 - `smos-douyin/smos-douyin.user.js`
 - `smos-zhihu/smos-zhihu.user.js`
 - `smos-xiaohongshu/smos-xiaohongshu.user.js`
+- `smos-x/smos-x.user.js`
+- `smos-youtube/smos-youtube.user.js`
 
 然后按顺序同步：
 
@@ -99,7 +107,7 @@ package.json                      仅开发依赖（eslint、jsdom），产物�
 
 每个平台脚本是一个 IIFE。IIFE 第一条语句必须是 hostname 守卫（`if (location.hostname !== 'www.<site>.com') return`），这样它在 `smos.user.js` 里也只会在自己的站点运行；`verify-runtime.mjs` 会断言统一脚本在每个站点的菜单和定时器与该站点的独立脚本完全一致。
 
-知乎、小红书、抖音的脚本包含：
+知乎、小红书、抖音、X、YouTube 的脚本包含：
 
 1. 平台开关读取：`smos.enabled.<platform>`。
 2. 目标页面判断 `isTargetPage()`。
@@ -115,7 +123,7 @@ Bilibili 脚本结构不同（按首页/视频页一次性初始化），在共�
 
 ### 4.3 平台所有权保护
 
-Zhihu/XHS 都使用 `#smos-root`，Douyin 使用 `#dys-root`，Bilibili 使用 `#soh-root`。有了 hostname 守卫，不同平台的代码不会在同一页面运行；知乎/小红书仍保留 `window.__smosMountedPlatform` 标记，等共享运行时为每个平台分配独立根节点 id 后再删除。
+Zhihu/XHS/X/YouTube 都使用 `#smos-root`，Douyin 使用 `#dys-root`，Bilibili 使用 `#soh-root`。有了 hostname 守卫，不同平台的代码不会在同一页面运行；知乎/小红书仍保留 `window.__smosMountedPlatform` 标记，等共享运行时为每个平台分配独立根节点 id 后再删除。
 
 ### 4.4 主题适配
 
@@ -168,6 +176,8 @@ Bilibili 已相对稳定，非必要不做重构。修改时必须至少回归�
 | `smos.enabled.douyin` | boolean | 抖音开关 |
 | `smos.enabled.zhihu` | boolean | 知乎开关 |
 | `smos.enabled.xiaohongshu` | boolean | 小红书开关 |
+| `smos.enabled.x` | boolean | X（Twitter）开关 |
+| `smos.enabled.youtube` | boolean | YouTube 开关 |
 | `searchOnlyHome.playerMode` | string | Bilibili 播放器模式：`normal` / `wide` / `web` / `full` |
 | `searchOnlyHome.hideRelated` | boolean | Bilibili 隐藏相关推荐 |
 | `searchOnlyHome.applyOnPlay` | boolean | Bilibili 播放时应用模式 |
@@ -236,6 +246,8 @@ Bilibili 已相对稳定，非必要不做重构。修改时必须至少回归�
 | Zhihu | `/`、`/explore`、`/hot`；刷新；进入 `/search` 后根节点移除；返回后恢复 |
 | Xiaohongshu | `/`、`/explore`；刷新；进入 `/search_result` 后移除；亮/暗色主题 |
 | Douyin | `/jingxuan`；刷新；进入搜索/用户页后移除；亮/暗色主题；目标页自动静音 |
+| X（Twitter） | `/`、`/home`；刷新；进入 `/search`、`/explore` 后移除；返回后恢复；亮/暗色主题 |
+| YouTube | `/`；刷新；进入 `/watch`、`/results` 后移除；返回后恢复；亮/暗色主题 |
 | Bilibili | 首页搜索框；视频页播放器模式；隐藏相关推荐 |
 | 平台开关 | 关闭后当前页面恢复原生首页，重新开启后搜索框恢复 |
 | 扩展 UI | popup 与 options 状态一致；Bilibili 设置能写入存储 |

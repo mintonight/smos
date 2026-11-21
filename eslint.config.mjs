@@ -1,7 +1,7 @@
 import globals from 'globals'
 import smos from './tools/eslint-plugin-smos.mjs'
 
-const PLATFORM_FILES = ['bilibili', 'douyin', 'zhihu', 'xiaohongshu'].map(key => `smos-${key}/smos-${key}.user.js`)
+const PLATFORM_FILES = ['bilibili', 'douyin', 'zhihu', 'xiaohongshu', 'x', 'youtube'].map(key => `smos-${key}/smos-${key}.user.js`)
 const each = (entry) => PLATFORM_FILES.map(file => ({ file, ...entry }))
 
 // Known violations of smos/no-timer-patch and smos/no-global-patch. Each entry is a TODO:
@@ -63,7 +63,7 @@ const GLOBAL_PATCH_ALLOW = [
 
 export default [
   {
-    ignores: ['node_modules/**', 'dist/**', 'assets/**', 'smos.user.js', 'extension/content/[1-4]0-*.js'],
+    ignores: ['node_modules/**', 'dist/**', 'assets/**', 'smos.user.js', 'extension/content/[1-6]0-*.js'],
   },
   {
     files: ['smos-*/*.user.js'],

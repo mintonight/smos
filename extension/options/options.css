@@ -153,6 +153,14 @@ main {
   background: #ff2442;
 }
 
+.icon-x {
+  background: #0f1419;
+}
+
+.icon-youtube {
+  background: #ff0000;
+}
+
 .platform-copy {
   display: flex;
   flex-direction: column;

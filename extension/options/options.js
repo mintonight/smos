@@ -3,6 +3,8 @@ const PLATFORM_KEYS = [
   'smos.enabled.douyin',
   'smos.enabled.zhihu',
   'smos.enabled.xiaohongshu',
+  'smos.enabled.x',
+  'smos.enabled.youtube',
 ]
 
 const BILI_DEFAULTS = {

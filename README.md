@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./assets/readme/hero-dark.svg">
-  <img src="./assets/readme/hero.svg" width="1120" alt="SMOS — 首页，只留搜索。支持 Bilibili、抖音、知乎、小红书。">
+  <img src="./assets/readme/hero.svg" width="1120" alt="SMOS — 首页，只留搜索。支持 Bilibili、抖音、知乎、小红书、X 与 YouTube。">
 </picture>
 
 # SMOS
@@ -55,6 +55,8 @@ Raw 链接不可用时，可用 [jsDelivr 镜像](https://cdn.jsdelivr.net/gh/mi
 | 抖音 / Douyin | [Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-douyin/smos-douyin.user.js) | [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-douyin/smos-douyin.user.js) | [平台说明](./smos-douyin) |
 | 知乎 / Zhihu | [Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-zhihu/smos-zhihu.user.js) | [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-zhihu/smos-zhihu.user.js) | [平台说明](./smos-zhihu) |
 | 小红书 / Xiaohongshu | [Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-xiaohongshu/smos-xiaohongshu.user.js) | [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-xiaohongshu/smos-xiaohongshu.user.js) | [平台说明](./smos-xiaohongshu) |
+| X（Twitter） | [Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-x/smos-x.user.js) | [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-x/smos-x.user.js) | [平台说明](./smos-x) |
+| YouTube | [Raw](https://raw.githubusercontent.com/mintonight/smos/main/smos-youtube/smos-youtube.user.js) | [jsDelivr](https://cdn.jsdelivr.net/gh/mintonight/smos/smos-youtube/smos-youtube.user.js) | [平台说明](./smos-youtube) |
 
 </details>
 
@@ -66,12 +68,14 @@ Raw 链接不可用时，可用 [jsDelivr 镜像](https://cdn.jsdelivr.net/gh/mi
 | 抖音 / Douyin | 精选 `/jingxuan` 及其子路径；推荐首页 `/?recommend=*` | 隐藏内容流、保留搜索；目标页暂停并静音音视频 |
 | 知乎 / Zhihu | 首页 `/`、发现 `/explore`、热榜 `/hot` | 保留导航，内容区替换为搜索框 |
 | 小红书 / Xiaohongshu | 首页 `/`、探索 `/explore` | 保留导航，内容区替换为搜索框 |
+| X（Twitter） | 首页 `/`、主页时间线 `/home` | 保留左侧导航，隐藏时间线与右侧栏，内容区替换为搜索框 |
+| YouTube | 首页 `/` | 保留顶部导航与左侧栏，隐藏推荐网格，内容区替换为搜索框 |
 
 ¹ Bilibili 播放页覆盖 `/video/*`、`/bangumi/play/*`、`/list/*`、`/medialist/play/*`、`/cheese/*`、`/festival/*`。
 
 - 搜索仍使用平台原生结果页，不替换搜索结果。
 - 抖音、知乎、小红书离开目标路由后移除搜索界面，返回时恢复；抖音的媒体限制也只在目标页生效。
-- 抖音、小红书适配亮色 / 深色主题；知乎使用浅色界面。
+- 抖音、小红书、X、YouTube 适配亮色 / 深色主题；知乎使用浅色界面。
 - Bilibili 与抖音的自定义背景设置仅在油猴版提供，扩展版暂不支持。
 
 ## 开发 / Development

@@ -27,7 +27,7 @@ const cmp = (a, b) => {
 const errors = []
 const userVersion = p => (read(p).match(/^\/\/ @version\s+(\S+)$/m) || [])[1]
 
-const platforms = ['bilibili', 'douyin', 'zhihu', 'xiaohongshu'].map(k => `smos-${k}/smos-${k}.user.js`)
+const platforms = ['bilibili', 'douyin', 'zhihu', 'xiaohongshu', 'x', 'youtube'].map(k => `smos-${k}/smos-${k}.user.js`)
 const merged = userVersion('smos.user.js')
 const manifest = JSON.parse(read('extension/manifest.json')).version
 

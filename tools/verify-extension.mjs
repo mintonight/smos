@@ -110,7 +110,7 @@ for (const symbol of ['GM_getValue', 'GM_setValue', 'GM_addStyle', 'GM_registerM
 }
 
 const popup = await readFile(path.join(extensionDir, 'popup/popup.html'), 'utf8')
-for (const key of ['bilibili', 'douyin', 'zhihu', 'xiaohongshu']) {
+for (const key of ['bilibili', 'douyin', 'zhihu', 'xiaohongshu', 'x', 'youtube']) {
   check(popup.includes(`smos.enabled.${key}`), `Popup is missing toggle for ${key}`)
 }
 

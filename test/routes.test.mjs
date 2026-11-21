@@ -18,6 +18,29 @@ const ROUTES = {
     yes: ['https://www.douyin.com/jingxuan', 'https://www.douyin.com/jingxuan/food', 'https://www.douyin.com/?recommend=1'],
     no: ['https://www.douyin.com/', 'https://www.douyin.com/search/x', 'https://www.douyin.com/user/self', 'https://www.douyin.com/video/1'],
   },
+  x: {
+    fn: 'isTargetPage',
+    yes: ['https://x.com/', 'https://x.com/home', 'https://x.com/home/'],
+    no: [
+      'https://x.com/search?q=x&src=typed_query',
+      'https://x.com/explore',
+      'https://x.com/notifications',
+      'https://x.com/messages',
+      'https://x.com/i/flow/login',
+      'https://x.com/jack',
+    ],
+  },
+  youtube: {
+    fn: 'isTargetPage',
+    yes: ['https://www.youtube.com/', 'https://www.youtube.com/?persist_app=1'],
+    no: [
+      'https://www.youtube.com/watch?v=abc',
+      'https://www.youtube.com/results?search_query=x',
+      'https://www.youtube.com/feed/subscriptions',
+      'https://www.youtube.com/@user',
+      'https://www.youtube.com/shorts/abc',
+    ],
+  },
 }
 
 const BILIBILI = {
@@ -54,7 +77,7 @@ for (const [fn, { yes, no }] of Object.entries(BILIBILI)) {
   })
 }
 
-const CONTENT = { bilibili: 'content/10-bilibili.js', douyin: 'content/20-douyin.js', zhihu: 'content/30-zhihu.js', xiaohongshu: 'content/40-xiaohongshu.js' }
+const CONTENT = { bilibili: 'content/10-bilibili.js', douyin: 'content/20-douyin.js', zhihu: 'content/30-zhihu.js', xiaohongshu: 'content/40-xiaohongshu.js', x: 'content/50-x.js', youtube: 'content/60-youtube.js' }
 const manifest = JSON.parse(read('extension/manifest.json'))
 const sorted = list => [...list].sort()
 

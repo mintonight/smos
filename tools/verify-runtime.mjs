@@ -15,6 +15,8 @@ export const PLATFORMS = {
   douyin: { label: '抖音', userscript: 'smos-douyin/smos-douyin.user.js', content: 'extension/content/20-douyin.js' },
   zhihu: { label: '知乎', userscript: 'smos-zhihu/smos-zhihu.user.js', content: 'extension/content/30-zhihu.js' },
   xiaohongshu: { label: '小红书', userscript: 'smos-xiaohongshu/smos-xiaohongshu.user.js', content: 'extension/content/40-xiaohongshu.js' },
+  x: { label: 'X', userscript: 'smos-x/smos-x.user.js', content: 'extension/content/50-x.js' },
+  youtube: { label: 'YouTube', userscript: 'smos-youtube/smos-youtube.user.js', content: 'extension/content/60-youtube.js' },
 }
 
 // Feature map: what a user should see on each page. root = injected search UI id (null = page untouched).
@@ -32,6 +34,13 @@ export const FEATURES = [
   { platform: 'xiaohongshu', url: 'https://www.xiaohongshu.com/', root: 'smos-root' },
   { platform: 'xiaohongshu', url: 'https://www.xiaohongshu.com/explore', root: 'smos-root' },
   { platform: 'xiaohongshu', url: 'https://www.xiaohongshu.com/search_result/?keyword=test', root: null, muted: false },
+  { platform: 'x', url: 'https://x.com/home', root: 'smos-root' },
+  { platform: 'x', url: 'https://x.com/', root: 'smos-root' },
+  { platform: 'x', url: 'https://x.com/search?q=test&src=typed_query', root: null, muted: false },
+  { platform: 'x', url: 'https://x.com/explore', root: null, muted: false },
+  { platform: 'youtube', url: 'https://www.youtube.com/', root: 'smos-root' },
+  { platform: 'youtube', url: 'https://www.youtube.com/results?search_query=test', root: null, muted: false },
+  { platform: 'youtube', url: 'https://www.youtube.com/watch?v=abc', root: null, muted: false },
 ]
 
 const ROOT_IDS = ['soh-root', 'dys-root', 'smos-root']

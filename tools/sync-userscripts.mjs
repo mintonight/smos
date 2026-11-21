@@ -14,6 +14,8 @@ export const SECTIONS = [
   { marker: '/* SMOS Douyin */', file: 'smos-douyin/smos-douyin.user.js' },
   { marker: '/* SMOS Zhihu */', file: 'smos-zhihu/smos-zhihu.user.js' },
   { marker: '/* SMOS Xiaohongshu */', file: 'smos-xiaohongshu/smos-xiaohongshu.user.js' },
+  { marker: '/* SMOS X */', file: 'smos-x/smos-x.user.js' },
+  { marker: '/* SMOS Youtube */', file: 'smos-youtube/smos-youtube.user.js' },
 ]
 
 const read = path => readFileSync(join(root, path), 'utf8').replace(/\r/g, '')
