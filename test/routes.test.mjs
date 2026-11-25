@@ -20,10 +20,9 @@ const ROUTES = {
   },
   x: {
     fn: 'isTargetPage',
-    yes: ['https://x.com/', 'https://x.com/home', 'https://x.com/home/'],
+    yes: ['https://x.com/', 'https://x.com/home', 'https://x.com/home/', 'https://x.com/explore', 'https://x.com/explore/'],
     no: [
       'https://x.com/search?q=x&src=typed_query',
-      'https://x.com/explore',
       'https://x.com/notifications',
       'https://x.com/messages',
       'https://x.com/i/flow/login',
@@ -32,13 +31,17 @@ const ROUTES = {
   },
   youtube: {
     fn: 'isTargetPage',
-    yes: ['https://www.youtube.com/', 'https://www.youtube.com/?persist_app=1'],
+    yes: [
+      'https://www.youtube.com/',
+      'https://www.youtube.com/?persist_app=1',
+      'https://www.youtube.com/shorts',
+      'https://www.youtube.com/shorts/abc',
+    ],
     no: [
       'https://www.youtube.com/watch?v=abc',
       'https://www.youtube.com/results?search_query=x',
       'https://www.youtube.com/feed/subscriptions',
       'https://www.youtube.com/@user',
-      'https://www.youtube.com/shorts/abc',
     ],
   },
 }

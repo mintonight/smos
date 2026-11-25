@@ -20,7 +20,7 @@ GitHub Releases 也会提供已签名的 `.crx` 和 `.zip`。Chrome 默认只允
 - 关闭平台后，对应网站恢复原生首页；已打开页面会自动刷新。
 - Bilibili：播放器模式、隐藏相关推荐、播放时应用播放器模式。
 - 抖音、知乎、小红书：保留原生导航和搜索框，适配亮色/深色模式。
-- 知乎支持 `/`、`/explore`、`/hot`；小红书支持 `/`、`/explore`；抖音支持 `/jingxuan`、`/?recommend=*`；X 支持 `/`、`/home`；YouTube 支持 `/`。
+- 知乎支持 `/`、`/explore`、`/hot`；小红书支持 `/`、`/explore`；抖音支持 `/jingxuan`、`/?recommend=*`；X 支持 `/`、`/home`、`/explore`；YouTube 支持 `/`、`/shorts/*`。
 - 自定义背景功能暂未加入扩展版本。
 
 ## 目录

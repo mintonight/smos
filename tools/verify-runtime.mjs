@@ -37,8 +37,9 @@ export const FEATURES = [
   { platform: 'x', url: 'https://x.com/home', root: 'smos-root' },
   { platform: 'x', url: 'https://x.com/', root: 'smos-root' },
   { platform: 'x', url: 'https://x.com/search?q=test&src=typed_query', root: null, muted: false },
-  { platform: 'x', url: 'https://x.com/explore', root: null, muted: false },
+  { platform: 'x', url: 'https://x.com/explore', root: 'smos-root' },
   { platform: 'youtube', url: 'https://www.youtube.com/', root: 'smos-root' },
+  { platform: 'youtube', url: 'https://www.youtube.com/shorts/1FEfT-mt9xU', root: 'smos-root' },
   { platform: 'youtube', url: 'https://www.youtube.com/results?search_query=test', root: null, muted: false },
   { platform: 'youtube', url: 'https://www.youtube.com/watch?v=abc', root: null, muted: false },
 ]

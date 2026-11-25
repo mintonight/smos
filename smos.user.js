@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · All Platforms
 // @namespace    https://github.com/mintonight/smos
-// @version      1.5.0
+// @version      1.5.1
 // @description  SMOS：Bilibili、抖音、知乎、小红书、X 和 YouTube 仅搜索首页
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -2497,7 +2497,7 @@ body {
 
   const isTargetPage = () => {
     const path = location.pathname.replace(/\/+$/, '') || '/'
-    return location.hostname === 'x.com' && (path === '/' || path === '/home')
+    return location.hostname === 'x.com' && (path === '/' || path === '/home' || path === '/explore')
   }
 
   let styleEl = null
@@ -2902,7 +2902,25 @@ body {
 
   const isTargetPage = () => {
     const path = location.pathname.replace(/\/+$/, '') || '/'
-    return location.hostname === 'www.youtube.com' && path === '/'
+    return (
+      location.hostname === 'www.youtube.com' &&
+      (path === '/' || path === '/shorts' || path.indexOf('/shorts/') === 0)
+    )
+  }
+
+  // Shorts 是自动播放的视频流；目标页隐藏后仍在放声音，这里暂停并静音。
+  const silenceShortsMedia = () => {
+    if (location.pathname.indexOf('/shorts') !== 0) {
+      return
+    }
+    for (const video of document.querySelectorAll('video')) {
+      if (!video.muted) {
+        video.muted = true
+      }
+      if (!video.paused) {
+        video.pause()
+      }
+    }
   }
 
   let styleEl = null
@@ -2970,6 +2988,12 @@ body {
 
 ytd-browse[page-subtype="home"],
 #contents.ytd-rich-grid-renderer {
+  display: none !important;
+}
+
+ytd-shorts,
+#shorts-container,
+ytd-reel-video-renderer {
   display: none !important;
 }
 
@@ -3136,6 +3160,7 @@ ytd-browse[page-subtype="home"],
       if (styleEl) {
         styleEl.disabled = false
       }
+      silenceShortsMedia()
       mount()
     } else {
       deactivate()

@@ -19,8 +19,8 @@ SMOS（Social Media Only Search）把社交媒体首页变成“只有搜索”�
 | Douyin | `/jingxuan`、`/jingxuan/*`、`/?recommend=*` | 搜索、用户、视频详情等 |
 | Zhihu | `/`、`/explore`、`/hot` | 搜索、专栏、关注、通知等 |
 | Xiaohongshu | `/`、`/explore` | 搜索、详情等 |
-| X（Twitter） | `/`、`/home` | 搜索、通知、私信、个人主页、帖子详情等 |
-| YouTube | `/` | 搜索结果、观看页、订阅、频道、播放列表、Shorts 等 |
+| X（Twitter） | `/`、`/home`、`/explore` | 搜索、通知、私信、个人主页、帖子详情等 |
+| YouTube | `/`、`/shorts`、`/shorts/*` | 搜索结果、观看页、订阅、频道、播放列表等 |
 
 **不要擅自扩大目标页面范围。** 新增或修改目标路由时，必须同步更新平台脚本、统一脚本、扩展内容脚本、README 和测试。
 
@@ -246,8 +246,8 @@ Bilibili 已相对稳定，非必要不做重构。修改时必须至少回归�
 | Zhihu | `/`、`/explore`、`/hot`；刷新；进入 `/search` 后根节点移除；返回后恢复 |
 | Xiaohongshu | `/`、`/explore`；刷新；进入 `/search_result` 后移除；亮/暗色主题 |
 | Douyin | `/jingxuan`；刷新；进入搜索/用户页后移除；亮/暗色主题；目标页自动静音 |
-| X（Twitter） | `/`、`/home`；刷新；进入 `/search`、`/explore` 后移除；返回后恢复；亮/暗色主题 |
-| YouTube | `/`；刷新；进入 `/watch`、`/results` 后移除；返回后恢复；亮/暗色主题 |
+| X（Twitter） | `/`、`/home`、`/explore`；刷新；进入 `/search` 后移除；返回后恢复；亮/暗色主题 |
+| YouTube | `/`、`/shorts/*`；刷新；进入 `/watch`、`/results` 后移除；返回后恢复；亮/暗色主题 |
 | Bilibili | 首页搜索框；视频页播放器模式；隐藏相关推荐 |
 | 平台开关 | 关闭后当前页面恢复原生首页，重新开启后搜索框恢复 |
 | 扩展 UI | popup 与 options 状态一致；Bilibili 设置能写入存储 |

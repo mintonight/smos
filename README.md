@@ -68,8 +68,8 @@ Raw 链接不可用时，可用 [jsDelivr 镜像](https://cdn.jsdelivr.net/gh/mi
 | 抖音 / Douyin | 精选 `/jingxuan` 及其子路径；推荐首页 `/?recommend=*` | 隐藏内容流、保留搜索；目标页暂停并静音音视频 |
 | 知乎 / Zhihu | 首页 `/`、发现 `/explore`、热榜 `/hot` | 保留导航，内容区替换为搜索框 |
 | 小红书 / Xiaohongshu | 首页 `/`、探索 `/explore` | 保留导航，内容区替换为搜索框 |
-| X（Twitter） | 首页 `/`、主页时间线 `/home` | 保留左侧导航，隐藏时间线与右侧栏，内容区替换为搜索框 |
-| YouTube | 首页 `/` | 保留顶部导航与左侧栏，隐藏推荐网格，内容区替换为搜索框 |
+| X（Twitter） | 首页 `/`、主页时间线 `/home`、探索 `/explore` | 保留左侧导航，隐藏时间线与右侧栏，内容区替换为搜索框 |
+| YouTube | 首页 `/`、Shorts `/shorts/*` | 保留顶部导航与左侧栏，隐藏推荐网格 / Shorts 视频流，内容区替换为搜索框 |
 
 ¹ Bilibili 播放页覆盖 `/video/*`、`/bangumi/play/*`、`/list/*`、`/medialist/play/*`、`/cheese/*`、`/festival/*`。
 

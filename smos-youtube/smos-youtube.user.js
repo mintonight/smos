@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · YouTube
 // @namespace    https://github.com/mintonight/smos
-// @version      1.0.0
+// @version      1.1.0
 // @description  SMOS YouTube：YouTube 首页仅保留顶部导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -162,7 +162,25 @@
 
   const isTargetPage = () => {
     const path = location.pathname.replace(/\/+$/, '') || '/'
-    return location.hostname === 'www.youtube.com' && path === '/'
+    return (
+      location.hostname === 'www.youtube.com' &&
+      (path === '/' || path === '/shorts' || path.indexOf('/shorts/') === 0)
+    )
+  }
+
+  // Shorts 是自动播放的视频流；目标页隐藏后仍在放声音，这里暂停并静音。
+  const silenceShortsMedia = () => {
+    if (location.pathname.indexOf('/shorts') !== 0) {
+      return
+    }
+    for (const video of document.querySelectorAll('video')) {
+      if (!video.muted) {
+        video.muted = true
+      }
+      if (!video.paused) {
+        video.pause()
+      }
+    }
   }
 
   let styleEl = null
@@ -230,6 +248,12 @@ body {
 
 ytd-browse[page-subtype="home"],
 #contents.ytd-rich-grid-renderer {
+  display: none !important;
+}
+
+ytd-shorts,
+#shorts-container,
+ytd-reel-video-renderer {
   display: none !important;
 }
 
@@ -396,6 +420,7 @@ ytd-browse[page-subtype="home"],
       if (styleEl) {
         styleEl.disabled = false
       }
+      silenceShortsMedia()
       mount()
     } else {
       deactivate()

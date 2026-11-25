@@ -21,7 +21,7 @@ https://cdn.jsdelivr.net/gh/mintonight/smos/smos-x/smos-x.user.js
 
 ## 功能
 
-- 支持 X 首页（`/`、`/home`）。
+- 支持 X 首页与探索页（`/`、`/home`、`/explore`）。
 - 保留 X 原生左侧导航。
 - 隐藏首页时间线、右侧栏和推荐内容。
 - 在内容区显示中央搜索框。

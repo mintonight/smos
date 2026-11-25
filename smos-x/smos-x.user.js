@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SMOS · X
 // @namespace    https://github.com/mintonight/smos
-// @version      1.0.0
+// @version      1.1.0
 // @description  SMOS X：X（Twitter）首页仅保留左侧导航与居中搜索框
 // @author       mintonight
 // @homepageURL  https://github.com/mintonight/smos
@@ -162,7 +162,7 @@
 
   const isTargetPage = () => {
     const path = location.pathname.replace(/\/+$/, '') || '/'
-    return location.hostname === 'x.com' && (path === '/' || path === '/home')
+    return location.hostname === 'x.com' && (path === '/' || path === '/home' || path === '/explore')
   }
 
   let styleEl = null

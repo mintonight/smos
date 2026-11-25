@@ -21,12 +21,12 @@ https://cdn.jsdelivr.net/gh/mintonight/smos/smos-youtube/smos-youtube.user.js
 
 ## 功能
 
-- 支持 YouTube 首页（`/`）。
+- 支持 YouTube 首页与 Shorts（`/`、`/shorts/*`）。
 - 保留 YouTube 顶部 masthead 与左侧导航。
-- 隐藏首页推荐网格。
+- 隐藏首页推荐网格与 Shorts 视频流。
 - 在内容区显示中央搜索框。
 - 搜索后进入 YouTube 原生搜索结果页。
-- 不处理观看页、搜索结果、订阅、频道、播放列表、Shorts 等页面。
+- 不处理观看页、搜索结果、订阅、频道、播放列表等页面。
 - 适配亮色 / 深色主题。
 
 ## 设置
